@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+<HBox prefHeight="84.0" prefWidth="1125.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox maxWidth="650.0" minWidth="25.0" prefHeight="158.0" prefWidth="602.0" spacing="16.0" stylesheets="@../styles.css">
+         <children>
+            <Circle fx:id="circle_senderAvatar" fill="DODGERBLUE" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
+            <VBox prefHeight="220.0" prefWidth="323.0" spacing="16.0" style="-fx-background-color: #f1f0f0; -fx-background-radius: 20;" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="lbl_senderName" text="Admin">
+                           <font>
+                              <Font name="Open Sans Bold" size="22.0" />
+                           </font>
+                        </Label>
+                        <Pane minWidth="32.0" prefHeight="200.0" prefWidth="32.0" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lbl_timeSent" text="17/10/2019">
+                           <font>
+                              <Font name="Open Sans Italic" size="18.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <TextFlow prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Text fx:id="txt_messageContent" strokeType="OUTSIDE" strokeWidth="0.0" text="Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text Some Text ">
+                           <font>
+                              <Font name="Open Sans Regular" size="20.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </TextFlow>
+               </children>
+               <padding>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+               </padding>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+         </padding>
+      </HBox>
+   </children>
+</HBox>

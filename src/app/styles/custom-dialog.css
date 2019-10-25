@@ -1,0 +1,19 @@
+.custom-dialog {
+
+}
+
+.custom-dialog > .button-bar > .container {
+
+}
+
+.custom-dialog > .content.label {
+}
+
+.custom-dialog:header .header-panel {
+
+}
+
+.custom-dialog:header *.header-panel *.label {
+    -fx-font-family: "Open Sans";
+    -fx-font-size: 18px;
+}

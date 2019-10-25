@@ -1,0 +1,179 @@
+.root {
+    -fx-font-family: "Open Sans";
+}
+
+.glyph-icon {
+    -fx-font-family: "FontAwesome";
+}
+
+.font--MaterialDesign {
+    -fx-font-family: "Material Design Icons";
+}
+
+.font--OpenSans {
+    -fx-font-family: "Open Sans";
+}
+
+.bg-gradient--Sublime-light {
+    -fx-background-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+.bg--white {
+    -fx-background-color: #ffffff;
+}
+
+.bg--light {
+    -fx-background-color: #f2f2f2;
+}
+
+.bypass--success {
+    -fx-text-fill: derive(green, -15%);
+}
+
+.bypass--error {
+    -fx-text-fill: derive(red, 15%);
+}
+
+.account__main {
+    -fx-background-color: #f2f2f2;
+    -fx-background-radius: 10px;
+}
+
+.textbox {
+    -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+    -fx-border-width: 2px;
+    -fx-border-radius: 50px;
+}
+
+.btn-gradient {
+    -fx-background-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+    -fx-border-width: 2px;
+    -fx-background-radius: 50px;
+    -fx-text-fill: white;
+}
+
+.border--outside {
+    -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+    -fx-border-width: 2;
+}
+
+.text-area--transparent {
+    -fx-background-color: transparent;
+}
+
+.text-area--transparent .scroll-pane, .text-area--transparent .viewport, .text-area--transparent .content {
+    -fx-background-color: transparent;
+}
+
+.welcome-box * {
+    -fx-font-size: 26;
+}
+
+#lb_ChatUser, #lbl_listUser {
+    -fx-text-fill: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+    -fx-font-weight: bold;
+    -fx-font-family: "Open Sans";
+    -fx-font-size: 28px;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.avatar--default {
+    -fx-fill: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+.list-view {
+    -fx-background-color: transparent;
+}
+
+.list-cell {
+    -fx-background-color: #ffffff;
+}
+
+.list-cell:hover {
+    -fx-background-color: derive(#ffffff, -5%);
+}
+
+.list-cell:empty:hover {
+    -fx-background-color: #ffffff;
+}
+
+.list-cell:focused {
+    -fx-background-color: derive(#ffffff, -15%);
+}
+
+.list-cell:focused .label {
+    -fx-text-fill: black;
+}
+
+.scroll-pane-inside {
+    -fx-background-color: #ffffff;
+}
+
+#lv_UserList {
+    -fx-border-width: 0 2 0 0;
+    -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+#hb_TopLeft {
+    -fx-border-width: 0 2 2 0;
+    -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+#hb_BottomRight {
+    -fx-border-width: 2 0 0 0;
+    -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+#hb_TopRight {
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+.message-box--logged-user .detail-box {
+    -fx-background-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+.message-box--logged-user .detail-box .label, .message-box--logged-user .detail-box__message-content {
+    -fx-text-fill: derive(#ffffff, -5%);
+    -fx-fill: derive(#ffffff, -5%);
+}
+
+.message-box--guest-user .detail-box {
+    -fx-background-color: #f1f0f0;
+}
+
+
+.detail-box {
+    -fx-background-radius: 20;
+}
+
+.detail-box__senderName {
+    -fx-font-size: 22;
+    -fx-font-weight: bold;
+}
+
+.detail-box__timeSent {
+    -fx-font-size: 18;
+}
+
+.message-box--logged-user .detail-box__timeSent.label {
+    -fx-text-fill: derive(#ffffff, -12.5%);
+}
+
+.message-box--guest-user .detail-box__timeSent.label {
+    -fx-text-fill: derive(#ffffff, -50%);
+}
+
+.detail-box__message-content {
+    -fx-font-size: 20;
+    -fx-spacing: 10px;
+    -fx-line-spacing: 10px;
+}
+
+.detail-box__message-content .text {
+    -fx-line-spacing: 10px;
+}
+

@@ -1,0 +1,21 @@
+.user-container {
+
+}
+
+.user-container:hover {
+    -fx-background-color: derive(#f2f2f2, -5%);
+}
+
+.user-container__avatar__default {
+    -fx-fill: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
+}
+
+.user-container__detail__name {
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+}
+
+.user-container__detail__status {
+    -fx-font-size: 22;
+    -fx-font-style: italic;
+}

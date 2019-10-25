@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="850.0" prefWidth="1121.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="bg-gradient--Sublime-light"
+              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+              AnchorPane.topAnchor="0.0">
+            <children>
+                <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="700.0"
+                      prefWidth="650.0" styleClass="account__main">
+                    <padding>
+                        <Insets bottom="32.0" left="48.0" right="48.0" top="48.0"/>
+                    </padding>
+                    <effect>
+                        <DropShadow/>
+                    </effect>
+                    <children>
+                        <Label text="Đăng nhập">
+                            <font>
+                                <Font name="Open Sans Bold" size="48.0"/>
+                            </font>
+                            <VBox.margin>
+                                <Insets bottom="64.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <HBox alignment="CENTER_LEFT" prefHeight="58.0" prefWidth="657.0" styleClass="textbox">
+                            <children>
+                                <Label prefWidth="110.0" text="Tài khoản">
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                    <font>
+                                        <Font name="Open Sans Bold" size="22.0"/>
+                                    </font>
+                                </Label>
+                                <TextField fx:id="tf_Username" alignment="CENTER" onAction="#signin" prefHeight="43.0"
+                                           prefWidth="363.0" style="-fx-background-color: transparent;"
+                                           styleClass="text-field" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Open Sans Regular" size="22.0"/>
+                                    </font>
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                </TextField>
+                                <FontAwesomeIconView glyphName="USER" size="24">
+                                    <HBox.margin>
+                                        <Insets left="8.0"/>
+                                    </HBox.margin>
+                                </FontAwesomeIconView>
+                            </children>
+                            <padding>
+                                <Insets left="16.0" right="16.0"/>
+                            </padding>
+                            <VBox.margin>
+                                <Insets bottom="36.0"/>
+                            </VBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="58.0" prefWidth="657.0" styleClass="textbox">
+                            <children>
+                                <Label prefWidth="110.0" text="Mật khẩu">
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                    <font>
+                                        <Font name="Open Sans Bold" size="22.0"/>
+                                    </font>
+                                </Label>
+                                <PasswordField fx:id="pf_Password" alignment="CENTER" onAction="#signin"
+                                               style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Open Sans Regular" size="22.0"/>
+                                    </font>
+                                </PasswordField>
+                                <FontAwesomeIconView glyphName="KEY" size="24">
+                                    <HBox.margin>
+                                        <Insets left="8.0"/>
+                                    </HBox.margin>
+                                </FontAwesomeIconView>
+                            </children>
+                            <padding>
+                                <Insets left="16.0" right="16.0"/>
+                            </padding>
+                            <VBox.margin>
+                                <Insets bottom="36.0"/>
+                            </VBox.margin>
+                        </HBox>
+                        <HBox prefHeight="58.0" prefWidth="525.0" spacing="16.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" prefHeight="58.0" prefWidth="657.0" styleClass="textbox"
+                                      HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Host">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="Open Sans Bold" size="22.0"/>
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="tf_Hostname" alignment="CENTER" onAction="#signin"
+                                                   prefHeight="43.0" prefWidth="0.0"
+                                                   style="-fx-background-color: transparent;" styleClass="text-field"
+                                                   HBox.hgrow="ALWAYS">
+                                            <font>
+                                                <Font name="Open Sans Italic" size="22.0"/>
+                                            </font>
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                        </TextField>
+                                        <FontAwesomeIconView glyphName="HOME" size="24">
+                                            <HBox.margin>
+                                                <Insets left="8.0"/>
+                                            </HBox.margin>
+                                        </FontAwesomeIconView>
+                                    </children>
+                                    <padding>
+                                        <Insets left="16.0" right="16.0"/>
+                                    </padding>
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" prefHeight="58.0" prefWidth="657.0" styleClass="textbox"
+                                      HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Port">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                            <font>
+                                                <Font name="Open Sans Bold" size="22.0"/>
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="tf_Port" alignment="CENTER" onAction="#signin"
+                                                   prefHeight="43.0" prefWidth="0.0"
+                                                   style="-fx-background-color: transparent;" styleClass="text-field"
+                                                   HBox.hgrow="ALWAYS">
+                                            <font>
+                                                <Font name="Open Sans Italic" size="22.0"/>
+                                            </font>
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                        </TextField>
+                                        <FontAwesomeIconView glyphName="LINK" size="24">
+                                            <HBox.margin>
+                                                <Insets left="8.0"/>
+                                            </HBox.margin>
+                                        </FontAwesomeIconView>
+                                    </children>
+                                    <padding>
+                                        <Insets left="16.0" right="16.0"/>
+                                    </padding>
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                </HBox>
+                            </children>
+                            <VBox.margin>
+                                <Insets bottom="36.0"/>
+                            </VBox.margin>
+                        </HBox>
+                        <Label fx:id="lbl_bypassMessage" text="Bypass Message">
+                            <font>
+                                <Font name="Open Sans Regular" size="18.0"/>
+                            </font>
+                        </Label>
+                        <Button fx:id="btnSignin" mnemonicParsing="false" onAction="#signin" prefHeight="58.0"
+                                prefWidth="397.0" styleClass="btn-gradient" text="Đăng nhập">
+                            <VBox.margin>
+                                <Insets bottom="48.0" top="16.0"/>
+                            </VBox.margin>
+                            <font>
+                                <Font name="Open Sans Regular" size="26.0"/>
+                            </font>
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
+                        </Button>
+                        <HBox alignment="CENTER" prefHeight="51.0" prefWidth="575.0">
+                            <children>
+                                <Label text="Chưa có tài khoản?">
+                                    <font>
+                                        <Font name="Open Sans Regular" size="22.0"/>
+                                    </font>
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                </Label>
+                                <Label fx:id="lbl_signup" onMouseClicked="#signup" text="Đăng ký ngay!"
+                                       textFill="#5daeff">
+                                    <font>
+                                        <Font name="Open Sans Bold" size="22.0"/>
+                                    </font>
+                                    <HBox.margin>
+                                        <Insets left="8.0"/>
+                                    </HBox.margin>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND"/>
+                                    </cursor>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
