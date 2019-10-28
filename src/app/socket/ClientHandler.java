@@ -11,6 +11,8 @@ import app.controllers.UserController;
 import app.models.User;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.jws.soap.SOAPBinding;
+
 public class ClientHandler implements Runnable {
     private Socket client;
     private Boolean isLoggedIn = false;
@@ -42,23 +44,29 @@ public class ClientHandler implements Runnable {
                 tokens = StringUtils.split(line, ',');
                 if (tokens != null && tokens.length > 0) {
                     String cmd = tokens[0];
-                    if ("quit".equalsIgnoreCase(cmd)) {
-                        break;
-                    } else if ("login".equalsIgnoreCase(cmd)) {
-                        handleLogin(os, tokens);
-                    } else if ("signup".equals(cmd)) {
-                        handleSignup(os, tokens);
-                    } else if ("list".equalsIgnoreCase(cmd)) {
-                        handleShowList(os);
-                    } else if ("connect".equalsIgnoreCase(cmd)) {
-                        handleConnect(os, tokens);
-                    } else if ("logout".equalsIgnoreCase(cmd)) {
-                        handleLogout(os, tokens);
-                    } else if ("agree".equalsIgnoreCase(cmd)) {
-                        handleAgree(os, tokens);
-                    } else {
-                        String msg = "unknown" + cmd + "\n";
-                        os.writeUTF(msg);
+                    switch (cmd){
+                        case "login":
+                            handleLogin(os,tokens);
+                            break;
+                        case "signup":
+                            handleSignup(os,tokens);
+                            break;
+                        case "list":
+                            handleShowList(os);
+                            break;
+                        case "connect":
+                            handleConnect(os,tokens);
+                            break;
+                        case "agree":
+                            handleAgree(os,tokens);
+                            break;
+                        case "logout":
+                            handleLogout(os,tokens);
+                            break;
+                        case "friend":
+                            handleAddFriend(tokens);
+                        default:
+                            System.out.println("Unknown "+ cmd);
                     }
                 }
                 os.flush();
@@ -72,14 +80,19 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    private void handleAddFriend(String[] tokens) {
+
+    }
+
     private void handleAgree(DataOutputStream writer, String[] tokens) throws IOException {
         String port = tokens[1];
-        String toUser = tokens[2];
+        String fromUser = tokens[2];
+        String toUser = tokens[3];
         List<ClientHandler> clientList = server.getClientList();
         for (ClientHandler clientOne : clientList) {
-            if (clientOne.getUser().equals(toUser)) {
+            if (clientOne.getUser().getUserName().equals(fromUser)) {
                 //writer.write("host 9000");
-                clientOne.send("listen " + port + " " + toUser);
+                clientOne.send("Listen," + port + "," + toUser + "," + this.client.getInetAddress().toString().substring(1));
             }
         }
 
@@ -94,10 +107,12 @@ public class ClientHandler implements Runnable {
             String signinQuery = "SELECT * FROM tbl_user WHERE userName = ? AND userPassword = ?";
             ResultSet resultSet = DBController.getInstance().ExecQuery(signinQuery, username, password);
             Boolean isLogged = false;
+            ClientHandler loggedUser = null;
             List<ClientHandler> clientList = server.getClientList();
             for (ClientHandler client : clientList) {
                 if (client.getUser().getUserName().equals(username)) {
                     isLogged = true;
+                    loggedUser = client;
                     break;
                 }
             }
@@ -108,7 +123,7 @@ public class ClientHandler implements Runnable {
                 writer.writeUTF(msg);
                 server.addUser(this);
                 handleShowList(writer);
-            } else {
+            }else {
                 String msg = "Login,Failed";
                 writer.writeUTF(msg);
             }
@@ -153,7 +168,6 @@ public class ClientHandler implements Runnable {
         this.user = null;
         this.isLoggedIn = false;
         server.removeUser(this);
-        client.close();
     }
 
     private void handleConnect(DataOutputStream writer, String[] tokens) throws IOException {
@@ -165,7 +179,8 @@ public class ClientHandler implements Runnable {
             for (ClientHandler clientOne : clientList) {
                 if (clientOne.getUser().getUserName().equals(toUser)) {
                     //writer.write("host 9000");
-                    clientOne.send("connection " + fromUser + " " + toUser);
+                    System.out.println(clientOne.getUser().getUserName());
+                    clientOne.send("Connect," + fromUser + "," + toUser);
                     res = clientOne;
                 }
             }
@@ -176,6 +191,10 @@ public class ClientHandler implements Runnable {
             String msg = "error";
             writer.writeUTF(msg);
         }
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public void send(String req) throws IOException {

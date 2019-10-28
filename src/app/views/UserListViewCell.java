@@ -1,4 +1,4 @@
-package app.ultilies;
+package app.views;
 
 import app.models.User;
 import javafx.fxml.FXML;

@@ -13,14 +13,14 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Client client = new Client("192.168.31.150", 9998, primaryStage);
+        Client client = new Client("localhost", 9998, primaryStage);
+        System.out.println();
         if (!client.connect()) {
             System.err.println("Connection failed");
         } else {
             System.out.println("Connection succeed");
             client.start();
             client.loadSigninFXML();
-
             primaryStage.show();
         }
     }

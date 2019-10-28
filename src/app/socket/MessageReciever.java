@@ -1,13 +1,18 @@
 package app.socket;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import app.models.Message;
 import app.models.User;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import org.apache.commons.lang3.ArrayUtils;
@@ -15,17 +20,14 @@ import org.apache.commons.lang3.StringUtils;
 
 public class MessageReciever implements Runnable {
 
+    private DataInputStream is;
     private PeerHandler peerHandler;
-    private BufferedReader reader;
-    private List<EventHandler<ActionEvent>> eventHandlerList;
+    private StringBuilder fileStringBuilder = new StringBuilder();
+    private String fileName;
 
-    public void addEventHandler(EventHandler<ActionEvent> event) {
-        eventHandlerList.add(event);
-    }
-
-    public MessageReciever(PeerHandler peerHandler, BufferedReader reader) {
+    public MessageReciever(PeerHandler peerHandler, DataInputStream is) {
+        this.is = is;
         this.peerHandler = peerHandler;
-        this.reader = reader;
     }
 
     @Override
@@ -33,32 +35,54 @@ public class MessageReciever implements Runnable {
         try {
             String line = null;
             String[] tokens = null;
-            while (true) {
-                line = reader.readLine();
-                tokens = StringUtils.split(line);
+            Boolean isDisconnect = false;
+            while (!isDisconnect) {
+                line = is.readUTF();
+                System.out.println(line);
+                tokens = StringUtils.split(line, ',');
+                System.out.println(tokens[0]);
                 if (tokens != null && tokens.length > 0) {
-                    String cmd = tokens[0];
-
-                    if (cmd.equals("Message")) {
-                        String[] tokensMessage = ArrayUtils.remove(tokens, 1);
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for (String token : tokensMessage) {
-                            stringBuilder.append(token);
-                            stringBuilder.append(" ");
+                    switch (tokens[0]) {
+                        case "Message": {
+                            String content = line.substring(line.indexOf(",") + 1);
+                            Message messageObject = new Message(new Timestamp(System.currentTimeMillis()), content, peerHandler.getPeerUser(), peerHandler.getClient().getLoggedUser());
+                            peerHandler.getMessageObservableList().add(messageObject);
+                            break;
                         }
-//                        Message message = new Message(new Timestamp(System.currentTimeMillis()), stringBuilder.toString(), peerHandler.getPeerUser(), peerHandler.getClient().getLoggedUser());
-//                        List<Message> messageList = peerHandler.getMessageList();
-//                        messageList.add(message);
-                        ObservableList<Message> messageObservableList = peerHandler.getMessageObservableList();
-//                        messageObservableList.add(message);
-                        peerHandler.setMessageObservableList(messageObservableList);
-                        // Add listener
+                        case "File": {
+                            String content = line.substring(line.indexOf(",") + 1);
+                            fileStringBuilder.append(content);
+                            break;
+                        }
+                        case "Endfile": {
+                            String content = line.substring(line.indexOf(",") + 1);
+                            String finalcontent = content.substring(content.indexOf(",") + 1);
+                            fileStringBuilder.append(finalcontent);
+                            fileName = tokens[1];
+                            Message messageObject = new Message(new Timestamp(System.currentTimeMillis()), "File :" + System.getProperty("user.dir") + "/" + fileName, peerHandler.getPeerUser(), peerHandler.getClient().getLoggedUser());
+                            peerHandler.getMessageObservableList().add(messageObject);
+                            Task<Void> writeFile = new FileTask(Base64.getDecoder().decode(fileStringBuilder.toString()), System.getProperty("user.dir"), fileName);
+                            Thread fileThread = new Thread(writeFile);
+                            fileThread.setDaemon(true);
+                            fileThread.start();
+                            fileStringBuilder = new StringBuilder();
+                            break;
+                        }
+                        case "Disconnect": {
+                            isDisconnect = true;
+                            break;
+                        }
                     }
                 }
-                System.out.println("User : " + line);
+                System.out.println("Recv : " + line);
             }
         } catch (Exception e) {
-
+            try {
+                peerHandler.getPeer().close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
+
     }
 }

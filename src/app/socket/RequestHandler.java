@@ -12,10 +12,12 @@ import java.util.Stack;
 import app.controllers.ChatRoomController;
 import app.controllers.UserController;
 import app.models.User;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,41 +39,47 @@ public class RequestHandler implements Runnable {
             String[] tokens = null;
             while (true) {
                 line = is.readUTF();
+                System.out.println("server:" + line);
                 tokens = StringUtils.split(line, ',');
                 if (tokens != null && tokens.length > 0) {
                     String cmd = tokens[0];
                     if ("quit".equalsIgnoreCase(cmd)) {
                         break;
                     } else if (cmd.equals("Login")) {
-                        client.setResultMessage(tokens[1]);
-                        System.out.println(tokens[1]);
-                        if (tokens[1].equals("Success")) {
-                            client.setLoggedUser(new User(tokens[2], tokens[3]));
+                        String[] finalTokens = tokens;
+                        client.setResultMessage(finalTokens[1]);
+
+                        if (finalTokens[1].equals("Success")) {
+                            client.setLoggedUser(new User(finalTokens[2], finalTokens[3]));
                         } else {
                             client.setLoggedUser(null);
                         }
                     } else if (cmd.equals("Signup")) {
                         client.setResultMessage(tokens[1]);
-                    }
-//                    else if (cmd.equals("Some Client Changed")) {
-//                        client.setSomeClientChanged(true);
-//                    }
-                    else if (cmd.equals("UserList")) {
+                    } else if (cmd.equals("Logout")) {
+                        break;
+                    } else if (cmd.equals("UserList")) {
                         List<User> userList = new ArrayList<>();
                         String[] usernameList = ArrayUtils.remove(tokens, 0);
                         for (String username : usernameList) {
-                            User user = new User(username);
-                            userList.add(user);
+                            if (!client.getLoggedUser().getUserName().equals(username)) {
+                                User user = new User(username);
+                                userList.add(user);
+                            }
                         }
 //                        client.setUserList(userList);
-                        userObservableList.setAll(userList);
-                        client.setUserObservableList(userObservableList);
-                    } else if ("connection".equalsIgnoreCase(cmd)) {
+                        // Task<Void> updateUserList = new UpdateUserListWorker(client,userObservableList);
+                        // ((UpdateUserListWorker) updateUserList).call();//client.setThreadUserObservableList(userObservableList);
+                        Platform.runLater(() -> {
+                            userObservableList.setAll(userList);
+                            client.setUserObservableList(userObservableList);
+                        });
+                    } else if ("Connect".equalsIgnoreCase(cmd)) {
                         handleConnect(client, tokens);
-                    } else if ("listen".equalsIgnoreCase(cmd)) {
+                    } else if ("Listen".equalsIgnoreCase(cmd)) {
                         handleListen(client, tokens);
                     } else {
-                        String msg = "unknown" + cmd;
+                        String msg = "unknown " + cmd;
                         System.out.println(msg);
                     }
                 }
@@ -96,8 +104,9 @@ public class RequestHandler implements Runnable {
 
     private void handleListen(Client client, String[] tokens) throws SQLException {
         int port = Integer.parseInt(tokens[1]);
+        String host = tokens[3];
         String peer = tokens[2];
         User peerUser = UserController.getInstance().getUser(peer);
-        client.peerListen(port, peerUser);
+        client.peerListen(port, peerUser, host);
     }
 }

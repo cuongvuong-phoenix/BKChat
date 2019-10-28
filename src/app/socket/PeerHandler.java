@@ -4,68 +4,89 @@ import app.models.Message;
 import app.models.User;
 import app.socket.MessageReciever;
 import app.socket.MessageSender;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import sun.security.util.DerOutputStream;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class PeerHandler implements Runnable {
-
     private Socket peer;
-
     private Client client;
-    private OutputStream os;
-    private PrintWriter writer;
+    private DataOutputStream os;
+    private DataInputStream is;
     private User peerUser;
     private MessageReciever messageReciever;
     private MessageSender messageSender;
     private List<Message> messageList = new ArrayList<>();
-    private ObservableList<Message> messageObservableList = FXCollections.observableArrayList();
+    private ObservableList<Message> messageObservableList;
 
-    public PeerHandler(Client client, Socket peerListen, User peerUser) {
+    public PeerHandler(Client client, Socket peerListen, User peerUser, ObservableList<Message> messageObservableList) {
         this.client = client;
         this.peer = peerListen;
         this.peerUser = peerUser;
+        this.messageObservableList = messageObservableList;
     }
 
     @Override
     public void run() {
-        messageObservableList.addListener((ListChangeListener<Message>) change -> {
-            while (change.next()){
 
+        messageObservableList.addListener((ListChangeListener<Message>) change -> {
+            while (change.next()) {
+                Platform.runLater(() -> {
+                    for (Map.Entry<PeerHandler, ObservableList<Message>> entry : client.mapPeerMessageList.entrySet()) {
+                        if (entry.getKey().equals(this)) {
+                            entry.setValue(messageObservableList);
+                        }
+                    }
+                });
             }
         });
 
         try {
-            this.os = peer.getOutputStream();
-            this.writer = new PrintWriter(os);
-            InputStream is = peer.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            messageReciever = new MessageReciever(this, reader);
-            messageSender = new MessageSender(this, writer);
-            Thread readerThread = new Thread(messageReciever);
-            Thread writerThread = new Thread(messageSender);
-            readerThread.start();
-            writerThread.start();
+            this.os = new DataOutputStream(peer.getOutputStream());
+            this.is = new DataInputStream(peer.getInputStream());
+            this.messageReciever = new MessageReciever(this, is);
+            this.messageSender = new MessageSender(this, os);
+            Thread peerReaderThread = new Thread(messageReciever);
+            Thread peerWriterThread = new Thread(messageSender);
+            peerReaderThread.start();
+            peerWriterThread.start();
         } catch (Exception e) {
 
         }
     }
 
     public void sendMessage(String content) {
-        if (messageSender != null) {
-            messageSender.send(content);
+        messageSender.send("Message," + content);
 //            Message message = new Message(new Timestamp(System.currentTimeMillis()), content, client.getLoggedUser(), peerUser);
 //            messageObservableList.add(message);
+
+    }
+
+    public void sendFile(String path, String fileName) {
+        try (InputStream in = new BufferedInputStream(new FileInputStream(path))) {
+            int len;
+            byte[] temp = new byte[4096];
+            while (((len = in.read(temp)) > 0)) {
+                System.out.println(len);
+                if (len < 4096) {
+                    byte[] extra;
+                    extra = Arrays.copyOf(temp, len);
+                    messageSender.send("Endfile," + fileName + "," + Base64.getEncoder().encodeToString(extra));
+                } else {
+                    messageSender.send("File," + Base64.getEncoder().encodeToString(temp));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -99,5 +120,19 @@ public class PeerHandler implements Runnable {
 
     public void setMessageObservableList(ObservableList<Message> messageObservableList) {
         this.messageObservableList = messageObservableList;
+    }
+
+    public Socket getPeer() {
+        synchronized (this) {
+            return peer;
+        }
+
+    }
+
+    public void setPeer(Socket peer) {
+        synchronized (this) {
+            this.peer = peer;
+        }
+
     }
 }

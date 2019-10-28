@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -20,9 +21,7 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -32,12 +31,14 @@ public class Client {
     private Socket socket;
     private OutputStream os;
 
-    private List<PeerHandler> peerList = new ArrayList<>();
+    public ObservableList<PeerHandler> peerList = FXCollections.observableArrayList();
     private int enablePort = 9000;
     private InputStream is;
     private RequestHandler requestHandler;
     private RequestSender requestSender;
     private BufferedReader bufferedReader;
+    private Thread readerThread;
+    private Thread writerThread;
     // Primary Stage
     private Stage primaryStage;
     // Controllers
@@ -50,6 +51,9 @@ public class Client {
     private User loggedUser;
     private List<User> userList = new ArrayList<>();
     private ObservableList<User> userObservableList = FXCollections.observableArrayList();
+    private ObservableList<User> threadUserObservableList = FXCollections.observableArrayList();
+
+    public ObservableMap<PeerHandler, ObservableList<Message>> mapPeerMessageList = FXCollections.observableHashMap();
 
     public Client(String serverHost, int serverPort, Stage primaryStage) {
         this.serverHost = serverHost;
@@ -62,11 +66,10 @@ public class Client {
         DataInputStream reader = new DataInputStream(is);
         this.requestHandler = new RequestHandler(this, reader);
         this.requestSender = new RequestSender(this, writer);
-        Thread readerThread = new Thread(requestHandler);
-        Thread writerThread = new Thread(requestSender);
+        readerThread = new Thread(requestHandler);
+        writerThread = new Thread(requestSender);
         readerThread.start();
         writerThread.start();
-
         userObservableList.addAll(userList);
     }
 
@@ -120,6 +123,25 @@ public class Client {
         requestSender.send(message);
     }
 
+    public void connectToPeer(String fromUser, String toUser) {
+        String message = "connect," + fromUser + "," + toUser;
+        requestSender.send(message);
+    }
+
+    public void logout() throws IOException {
+        for (PeerHandler peerHandler : peerList) {
+            peerHandler.sendMessage("Disconnect");
+            peerHandler.getPeer().close();
+        }
+        requestSender.send("logout");
+        loggedUser = null;
+        peerList = null;
+    }
+
+    public void addFriend(User friend) {
+        requestSender.send("friend," + loggedUser.getUserName() + "," + friend.getUserName());
+    }
+
     public boolean connect() {
         try {
             this.socket = new Socket(serverHost, serverPort);
@@ -130,6 +152,10 @@ public class Client {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void updateMessageList(PeerHandler peerHandler, ObservableList<Message> messageObservableList) {
+
     }
 
     /*public void peer(int port, String cmd) {
@@ -151,49 +177,64 @@ public class Client {
     public void peerHost(User peerUser) throws IOException {
         ServerSocket peerHost;
         try {
-            peerHost = new ServerSocket(enablePort);
-            String msg = "agree " + String.valueOf(enablePort) + " " + peerUser.getUserName();
-            enablePort += 1;
-            requestSender.send(msg);
-            System.out.println("???????");
-            while (true) {
-                try {
-                    Socket peerListen = peerHost.accept();
-                    Thread peerThread = new Thread(new PeerHandler(this, peerListen, peerUser));
-                    peerThread.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            boolean isPeerExists = false;
+            for (PeerHandler peerHandler : peerList) {
+                if (peerUser.getUserName().equals(peerHandler.getPeerUser().getUserName())) {
+                    isPeerExists = true;
+                    break;
                 }
             }
+
+            if (isPeerExists) {
+                return;
+            }
+
+            peerHost = new ServerSocket(enablePort);
+            String msg = "agree," + String.valueOf(enablePort) + "," + peerUser.getUserName() + "," + loggedUser.getUserName();
+            enablePort += 1;
+            requestSender.send(msg);
+
+            try {
+                ObservableList<Message> messageObservableList = FXCollections.observableArrayList();
+                Socket peerListen = peerHost.accept();
+                PeerHandler peerHandler = new PeerHandler(this, peerListen, peerUser, messageObservableList);
+                Thread peerThread = new Thread(peerHandler);
+                peerThread.start();
+                mapPeerMessageList.put(peerHandler, messageObservableList);
+                peerList.add(peerHandler);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         } catch (SocketException e) {
-            e.printStackTrace();
             enablePort += 1;
             peerHost(peerUser);
         }
     }
 
-    public void peerListen(int port, User peerUser) throws SQLException {
+    public void peerListen(int port, User peerUser, String host) throws SQLException {
         Socket peerListen;
         try {
-            peerListen = new Socket(serverHost, port);
-            System.out.println("???????");
-            Thread peerThread = new Thread(new PeerHandler(this, peerListen, peerUser));
-            peerThread.start();
+            boolean isPeerExists = false;
+            for (PeerHandler peerHandler : peerList) {
+                if (peerUser.getUserName().equals(peerHandler.getPeerUser().getUserName())) {
+                    isPeerExists = true;
+                    break;
+                }
+            }
+
+            if (!isPeerExists) {
+                ObservableList<Message> messageObservableList = FXCollections.observableArrayList();
+                peerListen = new Socket(host, port);
+                PeerHandler peerHandlerSuccess = new PeerHandler(this, peerListen, peerUser, messageObservableList);
+                Thread peerThread = new Thread(peerHandlerSuccess);
+                peerThread.start();
+                mapPeerMessageList.put(peerHandlerSuccess, messageObservableList);
+                peerList.add(peerHandlerSuccess);
+            }
         } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
 
-    public List<PeerHandler> getPeerList() {
-        synchronized (this) {
-            return peerList;
-        }
-    }
-
-    public void setPeerList(ArrayList<PeerHandler> peerList) {
-        synchronized (this) {
-            this.peerList = peerList;
-        }
     }
 
     public Stage getPrimaryStage() {
@@ -261,6 +302,22 @@ public class Client {
     public void setChatRoomController(ChatRoomController chatRoomController) {
         synchronized (this) {
             this.chatRoomController = chatRoomController;
+        }
+    }
+
+    public void update() {
+        userObservableList = threadUserObservableList;
+    }
+
+    public ObservableList<User> getThreadUserObservableList() {
+        synchronized (this) {
+            return threadUserObservableList;
+        }
+    }
+
+    public void setThreadUserObservableList(ObservableList<User> threadUserObservableList) {
+        synchronized (this) {
+            this.threadUserObservableList = threadUserObservableList;
         }
     }
 }

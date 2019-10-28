@@ -69,7 +69,7 @@
     -fx-font-size: 26;
 }
 
-#lb_ChatUser, #lbl_listUser {
+.lbl_ChatUser, #lbl_listUser {
     -fx-text-fill: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
     -fx-font-weight: bold;
     -fx-font-family: "Open Sans";
@@ -108,7 +108,7 @@
     -fx-text-fill: black;
 }
 
-.scroll-pane-inside {
+.scroll-pane__inside {
     -fx-background-color: #ffffff;
 }
 
@@ -122,12 +122,12 @@
     -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
 }
 
-#hb_BottomRight {
+.hb_BottomRight {
     -fx-border-width: 2 0 0 0;
     -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
 }
 
-#hb_TopRight {
+.hb_TopRight {
     -fx-border-width: 0 0 2 0;
     -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
 }

@@ -4,35 +4,27 @@ import app.models.Message;
 import app.models.User;
 import app.socket.Client;
 import app.socket.PeerHandler;
-import app.ultilies.MessageContainer;
-import app.ultilies.UserListViewCell;
-import com.sun.media.jfxmedia.events.PlayerEvent;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import app.views.ChatPane;
+import app.views.UserListViewCell;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.SQLException;
-import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ChatRoomController implements Initializable {
@@ -48,11 +40,18 @@ public class ChatRoomController implements Initializable {
 
     public ObservableList<User> userObservableList = FXCollections.observableArrayList();
 
+    private User selectedUser;
+
+    private User oldUser;
+
     @FXML
     private Label lbl_listUser;
 
     @FXML
     private ListView<User> lv_UserList;
+
+    @FXML
+    private StackPane stack_ChatPane;
 
     @FXML
     private Label lb_ChatUser;
@@ -72,6 +71,8 @@ public class ChatRoomController implements Initializable {
     @FXML
     private MaterialDesignIconView btn_SendMessage;
 
+    private List<ChatPane> chatPaneList = new ArrayList<>();
+
     public ChatRoomController() {
     }
 
@@ -88,23 +89,16 @@ public class ChatRoomController implements Initializable {
     void sendMessage(Event event) throws Exception {
         String messageContent = ta_Message.getText();
 
-        if (choosenUser == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Thông báo!");
-            alert.setHeaderText("Bạn phải chọn một người để chat trước khi gửi tin nhắn!");
-            alert.showAndWait();
-
-            return;
-        }
-
-        Message resultMessage = MessageController.getInstance().insertMessage(messageContent, this.loggedUser, this.choosenUser);
-
-        if (resultMessage != null) {
-            Node messageContainer = MessageContainer.getInstance().createMessageContainerRAW(resultMessage, this.loggedUser);
-
-            Platform.runLater(() -> vb_ChatBox.getChildren().add(messageContainer));
-
-            ta_Message.clear();
+//        if (choosenUser == null) {
+//            Alert alert = new Alert(Alert.AlertType.ERROR);
+//            alert.setTitle("Thông báo!");
+//            alert.setHeaderText("Bạn phải chọn một người để chat trước khi gửi tin nhắn!");
+//            alert.showAndWait();
+//
+//            return;
+//        }
+        if (peerHandler != null) {
+            peerHandler.sendMessage(ta_Message.getText());
         }
     }
 
@@ -119,17 +113,52 @@ public class ChatRoomController implements Initializable {
     }
 
     public void loadMessageList(ObservableList<Message> messageObservableList) throws URISyntaxException {
-        Platform.runLater(() -> vb_ChatBox.getChildren().clear());
+//        Platform.runLater(() -> vb_ChatBox.getChildren().clear());
+//
+//        if (messageObservableList.isEmpty()) {
+//            return;
+//        }
+//
+//        for (Message message : messageObservableList) {
+//            Node messageContainer = MessageContainer123.getInstance().createMessageContainerRAW(message, this.loggedUser);
+//
+//            Platform.runLater(() -> vb_ChatBox.getChildren().add(messageContainer));
+//        }
+    }
 
-        if (messageObservableList.isEmpty()) {
-            return;
-        }
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.loggedUser = client.getLoggedUser();
+        Platform.runLater(() -> {
+            lv_UserList.setItems(client.getUserObservableList());
+            lv_UserList.setCellFactory(userListView -> new UserListViewCell());
+        });
 
-        for (Message message : messageObservableList) {
-            Node messageContainer = MessageContainer.getInstance().createMessageContainerRAW(message, this.loggedUser);
+        lv_UserList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldUser, newUser) -> {
+            client.connectToPeer(loggedUser.getUserName(), newUser.getUserName());
 
-            Platform.runLater(() -> vb_ChatBox.getChildren().add(messageContainer));
-        }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            List<ChatPane> chatPaneList = new ArrayList<>();
+            for (Map.Entry<PeerHandler, ObservableList<Message>> entry : client.mapPeerMessageList.entrySet()) {
+                ChatPane chatPane = new ChatPane(entry.getKey(), entry.getValue());
+                chatPaneList.add(chatPane);
+            }
+            stack_ChatPane.getChildren().setAll(chatPaneList);
+
+            for (Node node : stack_ChatPane.getChildren()) {
+                ChatPane chatPane = (ChatPane) node;
+                if (chatPane.getPeerHandler().getPeerUser().getUserName().equals(newUser.getUserName())) {
+                    chatPane.setVisible(true);
+                } else if (chatPane.getPeerHandler().getPeerUser().getUserName().equals(oldUser.getUserName())) {
+                    chatPane.setVisible(false);
+                }
+            }
+        });
     }
 
     private void welcome() {
@@ -148,55 +177,6 @@ public class ChatRoomController implements Initializable {
         Text welcomeMessage_3 = new Text("Hãy chọn một người bạn để chat thôi nào!");
 
         welcomeBox.getChildren().addAll(hBox, welcomeMessage_3);
-
-        Platform.runLater(() -> vb_ChatBox.getChildren().add(welcomeBox));
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.loggedUser = client.getLoggedUser();
-        welcome();
-
-        Platform.runLater(() -> {
-            lv_UserList.setItems(client.getUserObservableList());
-            lv_UserList.setCellFactory(userListView -> new UserListViewCell());
-        });
-
-
-        vb_ChatBox.heightProperty().addListener((observableValue, oldValue, newValue) -> {
-            sp_ChatBox.setVvalue(1.0d);
-        });
-//        messageObservableList = FXCollections.observableArrayList();
-//        messageObservableList.addListener((ListChangeListener<Message>) change -> {
-//            while (change.next()) {
-//                try {
-//                    loadMessageList(messageObservableList);
-//                } catch (URISyntaxException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-
-        lv_UserList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldUser, newUser) -> {
-            lb_ChatUser.setText(newUser.getUserNickname() + "  (" + newUser.getUserName() + ")");
-
-//            this.choosenUser = newUser;
-//
-//            try {
-//                client.peerHost(newUser);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            for (PeerHandler peerHandler : client.getPeerList()) {
-//                if (peerHandler.getPeerUser().equals(newUser)) {
-//                    this.peerHandler = peerHandler;
-//                    break;
-//                }
-//            }
-//
-//            messageObservableList = peerHandler.getMessageObservableList();
-        });
     }
 
     public Client getClient() {
