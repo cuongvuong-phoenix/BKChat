@@ -21,7 +21,6 @@ public class FileTask extends Task<Void> {
             FileOutputStream os = new FileOutputStream(path + "/" + fileName);
             os.write(file);
             os.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
