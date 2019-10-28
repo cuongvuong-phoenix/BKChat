@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import sun.security.util.DerOutputStream;
 
 import java.io.*;
@@ -70,24 +71,34 @@ public class PeerHandler implements Runnable {
     }
 
     public void sendFile(String path, String fileName) {
-        try (InputStream in = new BufferedInputStream(new FileInputStream(path))) {
-            int len;
-            byte[] temp = new byte[1023];
-            while (((len = in.read(temp)) > 0)) {
-                System.out.println(len);
-                if (len < 1023) {
-                    byte[] extra;
-                    extra = Arrays.copyOf(temp, len);
-                    messageSender.send("Endfile," + fileName + "," + Base64.getEncoder().encodeToString(extra));
-                } else {
-                    messageSender.send("File," + Base64.getEncoder().encodeToString(temp));
+        Task<Void> sendFile = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try (InputStream in = new BufferedInputStream(new FileInputStream(path))) {
+                    int len;
+                    byte[] temp = new byte[1023];
+                    while (((len = in.read(temp)) > 0)) {
+                        System.out.println(len);
+                        if (len < 1023) {
+                            byte[] extra;
+                            extra = Arrays.copyOf(temp, len);
+                            messageSender.send("Endfile," + fileName + "," + Base64.getEncoder().encodeToString(extra));
+                        } else {
+                            messageSender.send("File," + Base64.getEncoder().encodeToString(temp));
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                return null;
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        };
+        Thread th = new Thread(sendFile);
+        th.setDaemon(true);
+        th.start();
+
     }
 
     public User getPeerUser() {
