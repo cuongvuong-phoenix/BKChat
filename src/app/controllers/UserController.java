@@ -26,13 +26,10 @@ public class UserController {
         ResultSet resultSet = DBController.getInstance().ExecQuery(query, userName);
 
         if (resultSet.next()) {
-            int id = resultSet.getInt(1);
-            String userPass = resultSet.getString(3);
-            String userNickname = resultSet.getString(4);
-            boolean userAdmin = resultSet.getBoolean(5);
-            String userAvatar = resultSet.getString(6);
+            String userNickname = resultSet.getString(3);
+            String userAvatar = resultSet.getString(4);
 
-            user = new User(id, userName, userPass, userNickname, userAdmin, userAvatar);
+            user = new User(userName, userNickname, userAvatar);
         }
 
         return user;
@@ -46,23 +43,19 @@ public class UserController {
         ResultSet resultSet;
 
         if (exceptUsers != null) {
-            query = "SELECT * FROM BKChat.tbl_user WHERE id != ?";
-            resultSet = DBController.getInstance().ExecQuery(query, exceptUsers.getId());
+            query = "SELECT * FROM BKChat.tbl_user WHERE userName != ?";
+            resultSet = DBController.getInstance().ExecQuery(query, exceptUsers.getUserName());
         } else {
             query = "SELECT * FROM BKChat.tbl_user";
             resultSet = DBController.getInstance().ExecQuery(query);
         }
 
-
         while (resultSet.next()) {
-            int id = resultSet.getInt(1);
-            String userName = resultSet.getString(2);
-            String userPass = resultSet.getString(3);
-            String userNickname = resultSet.getString(4);
-            boolean userAdmin = resultSet.getBoolean(5);
-            String userAvatar = resultSet.getString(6);
+            String userName = resultSet.getString(1);
+            String userNickname = resultSet.getString(3);
+            String userAvatar = resultSet.getString(4);
 
-            userList.add(new User(id, userName, userPass, userNickname, userAdmin, userAvatar));
+            userList.add(new User(userName, userNickname, userAvatar));
         }
 
         return userList;

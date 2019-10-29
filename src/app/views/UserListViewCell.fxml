@@ -18,14 +18,16 @@
                   <Font name="Open Sans Bold" size="24.0" />
                </font>
             </Label>
-            <Label fx:id="lbl_UserStatus" text="Something is not right">
-               <font>
-                  <Font name="Open Sans Italic" size="20.0" />
-               </font>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-            </Label>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="8.0">
+               <children>
+                  <Circle fx:id="circle_UserStatus" fill="WHITE" radius="7.5" stroke="BLACK" strokeType="INSIDE" />
+                  <Label fx:id="lbl_UserStatus" text="Something is not right">
+                     <font>
+                        <Font name="Open Sans Italic" size="20.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
          </children>
       </VBox>
    </children>

@@ -1,34 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 
 <AnchorPane prefHeight="850.0" prefWidth="1577.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <AnchorPane layoutX="33.0" layoutY="33.0" prefHeight="200.0" prefWidth="400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane layoutX="33.0" layoutY="33.0" prefHeight="200.0" prefWidth="400.0" AnchorPane.bottomAnchor="48.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <HBox fx:id="hb_TopLeft" alignment="CENTER" layoutX="33.0" layoutY="17.0" maxHeight="-Infinity" prefHeight="80.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <children>
-                        <Label fx:id="lbl_listUser" text="Danh sách người dùng">
-                            <font>
-                                <Font name="System Bold" size="26.0" />
-                            </font>
-                        </Label>
-                    </children>
+                <HBox fx:id="hb_TopLeft" alignment="CENTER" layoutX="33.0" layoutY="17.0" maxHeight="-Infinity" prefHeight="80.0" prefWidth="200.0" spacing="16.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <padding>
-                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                        <Insets bottom="16.0" left="16.0" right="12.0" top="16.0" />
                     </padding>
+               <children>
+                  <TextField fx:id="tf_AddFriend" promptText="Thêm bạn..." style="-fx-font-size: 20;" HBox.hgrow="ALWAYS" />
+                  <HBox alignment="CENTER">
+                     <styleClass>
+                        <String fx:value="btn--transparent" />
+                        <String fx:value="btn--circle" />
+                     </styleClass>
+                     <children>
+                        <FontAwesomeIconView fx:id="btn_AddFriend" glyphName="USER_PLUS" size="30" styleClass="avatar--default" />
+                     </children>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </HBox>
+               </children>
                 </HBox>
                 <ListView fx:id="lv_UserList" maxWidth="-Infinity" prefHeight="435.0" prefWidth="450.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0" />
             </children>
         </AnchorPane>
-      <StackPane fx:id="stack_ChatPane" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="400.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <Button fx:id="btn_Logout" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#logout" prefHeight="80.0" prefWidth="400.0" style="-fx-background-radius: 0;" styleClass="btn-gradient" text="Đăng xuất" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
+         <font>
+            <Font name="Open Sans Bold" size="26.0" />
+         </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Button>
+      <StackPane fx:id="stack_ChatPane" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="400.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <VBox fx:id="vb_Welcome" prefHeight="690.0" prefWidth="1127.0" styleClass="scroll-pane-inside" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <HBox alignment="CENTER" maxHeight="-Infinity" prefHeight="80.0" prefWidth="200.0" styleClass="hb_TopRight">
+                           <children>
+                              <Label styleClass="lbl_ChatUser" text="BKChat">
+                                 <font>
+                                    <Font name="System Bold" size="26.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                           <padding>
+                              <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+                           </padding>
+                        </HBox>
+                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <TextFlow prefHeight="39.0" prefWidth="1173.0" textAlignment="CENTER">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 24;" text="Xin chào " wrappingWidth="58.12109375" />
+                                    <Text fx:id="txt_LoggedUsername" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 24;" text="Admin">
+                                       <styleClass>
+                                          <String fx:value="lbl_ChatUser" />
+                                          <String fx:value="avatar--default" />
+                                       </styleClass>
+                                    </Text>
+                                 </children>
+                              </TextFlow>
+                              <TextFlow prefHeight="0.0" prefWidth="1173.0" textAlignment="CENTER">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 24;" text="Hãy chọn một người bạn để chat thôi nào!" />
+                                 </children>
+                              </TextFlow>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </children></StackPane>
     </children>
     <styleClass>
         <String fx:value="bg--white" />
