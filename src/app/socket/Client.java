@@ -16,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -121,7 +122,7 @@ public class Client {
 
     public void logout() throws IOException {
         System.out.println("BUg");
-        System.out.println("bug"+peerList.size());
+        System.out.println("bug" + peerList.size());
         for (PeerHandler peerHandler : peerList) {
             System.out.println("BUG!!");
             peerHandler.sendMessage("Disconnect");
@@ -139,11 +140,13 @@ public class Client {
 
     public boolean connect() {
         try {
-            this.socket = new Socket(serverHost, serverPort);
+            this.socket = new Socket();
+//            this.socket.setSoTimeout(5000);
+            this.socket.connect(new InetSocketAddress(serverHost, serverPort), 3000);
             this.os = socket.getOutputStream();
             this.is = socket.getInputStream();
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;

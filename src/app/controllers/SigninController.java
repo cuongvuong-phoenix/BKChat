@@ -34,12 +34,6 @@ public class SigninController implements Initializable {
     private PasswordField pf_Password;
 
     @FXML
-    private TextField tf_Hostname;
-
-    @FXML
-    private TextField tf_Port;
-
-    @FXML
     private Label lbl_bypassMessage;
     private BypassMessage bypassMessage;
 
@@ -50,8 +44,6 @@ public class SigninController implements Initializable {
     void signin(ActionEvent event) throws Exception {
         String username = tf_Username.getText();
         String password = pf_Password.getText();
-        String hostname = tf_Hostname.getText();
-        String port = tf_Port.getText();
 
         if (username.isEmpty()) {
             String usernameBypass_Failed = "Tên tài khoản không được trống!";
@@ -60,14 +52,6 @@ public class SigninController implements Initializable {
         } else if (password.isEmpty()) {
             String passwordBypass_Failed = "Mật khẩu không được trống!";
             bypassMessage.setBypassMessage(passwordBypass_Failed, false);
-            return;
-        } else if (hostname.isEmpty()) {
-            String hostaddBypass_Failed = "Địa chỉ của Host không được trống!";
-            bypassMessage.setBypassMessage(hostaddBypass_Failed, false);
-            return;
-        } else if (port.isEmpty()) {
-            String portBypass_Failed = "Số Port không được trống!";
-            bypassMessage.setBypassMessage(portBypass_Failed, false);
             return;
         }
 
@@ -83,7 +67,7 @@ public class SigninController implements Initializable {
             bypassMessage.setBypassMessage(bypassSuccess, true);
             client.loadChatroomFXML();
         } else if (resultMessage.equals("Failed")) {
-            String bypassFailed = "Lỗi! Sai tên tài khoản, mật khẩu hoặc do đang có người dùng tài khoản của bạn!";
+            String bypassFailed = "Sai tên tài khoản, mật khẩu hoặc đã đăng nhập!";
             bypassMessage.setBypassMessage(bypassFailed, false);
         }
         client.setResultMessage(null);
@@ -96,14 +80,12 @@ public class SigninController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        tf_Hostname.setText("localhost");
-        tf_Port.setText("7007");
         lbl_bypassMessage.setText("");
         bypassMessage = new BypassMessage(lbl_bypassMessage);
 
         // Handle Events
         List<TextField> textFieldList = new ArrayList<>();
-        Collections.addAll(textFieldList, tf_Username, pf_Password, tf_Hostname, tf_Port);
+        Collections.addAll(textFieldList, tf_Username, pf_Password);
         for (TextField textField : textFieldList) {
             textField.textProperty().addListener(((observableValue, oldValue, newValue) -> {
                 lbl_bypassMessage.setText("");

@@ -43,9 +43,9 @@ CREATE TABLE IF NOT EXISTS tbl_message (
 -- ADD SAMPLE ADMIN --
 INSERT INTO tbl_user (userName, userPassword, userNickname, userAvatar) VALUES("admin", "bkcadmin", "Admin", "avatar-default.jpg");
 -- ADD SOME SAMPLE USERS --
-INSERT INTO tbl_user (userName, userPassword, userNickname, userAvatar) VALUES("usertest", "123456", "Testing User", "avatar1.jpg");
-INSERT INTO tbl_user (userName, userPassword, userNickname, userAvatar) VALUES("UserTest2", "12345678", "Testing User 2", "avatar2.jpg");
-INSERT INTO tbl_user (userName, userPassword, userNickname, userAvatar) VALUES("usertest3", "123", "Testing User 3", "avatar3.jpg");
+INSERT INTO tbl_user (userName, userPassword, userNickname, userAvatar) VALUES("cuong", "123456", "Vương Cường", "avatar1.jpg");
+INSERT INTO tbl_user (userName, userPassword, userNickname, userAvatar) VALUES("quan", "123", "Quân Bùi", "avatar2.jpg");
+INSERT INTO tbl_user (userName, userPassword, userNickname, userAvatar) VALUES("dung", "123", "Dũng", "avatar3.jpg");
 
 -- User Stored Procedure (USP) for Signing up... --
 DELIMITER $$
@@ -94,9 +94,10 @@ BEGIN
 END; $$
 DELIMITER ;
 
-CALL USP_AddFriend("admin", "usertest");
-CALL USP_AddFriend("admin", "usertest2");
-CALL USP_AddFriend("usertest2", "usertest3");
+CALL USP_AddFriend("admin", "cuong");
+CALL USP_AddFriend("cuong", "quan");
+CALL USP_AddFriend("cuong", "dung");
+CALL USP_AddFriend("quan", "dung");
 
 -- User Stored Procedure (USP) for Query all Message of 2 user... --
 DELIMITER $$
@@ -125,4 +126,6 @@ SELECT * FROM BKChat.tbl_user;
 SELECT * FROM BKChat.tbl_userFriend;
 SELECT * FROM BKChat.tbl_userFriend WHERE user1 = "admin";
 SELECT * FROM BKChat.tbl_message;
+
+
 

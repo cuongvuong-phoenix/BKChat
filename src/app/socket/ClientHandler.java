@@ -116,11 +116,13 @@ public class ClientHandler implements Runnable {
             System.out.println();
             if (resultSet.next() && (isLogged.equals(false))) {
                 this.user = user;
+                System.out.println(user.getUserName());
                 this.isLoggedIn = true;
                 String msg = "Login,Success," + user.getUserName();
                 writer.writeUTF(msg);
                 server.addUser(this);
                 for (ClientHandler client : clientList) {
+                    System.out.println(client.getUser().getUserName());
                     client.handleShowList(client.getOs());
                 }
             } else {
