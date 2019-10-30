@@ -1,51 +1,34 @@
 package app.models;
 
 public class User {
-    private int id;
-
     private String userName;
 
-    private String userPass;
+    private String userStatus;
 
     private String userNickname;
-
-    private boolean userAdmin;
 
     private String userAvatar;
 
     public User(String userName) {
         this.userName = userName;
+        this.userStatus = "Offline";
         this.userNickname = "Default Nickname";
+        this.userAvatar = "avatar-default.jpg";
     }
 
-    public User(String userName, String userNickname) {
-        this.userName = userName;
+    public User(String userName, String userStatus) {
+        this(userName);
+        this.userStatus = userStatus;
+    }
+
+    public User(String userName, String userStatus, String userNickname) {
+        this(userName, userStatus);
         this.userNickname = userNickname;
     }
 
-    public User(String userName, String userPass, String userNickname, boolean userAdmin, String userAvatar) {
-        this.userName = userName;
-        this.userPass = userPass;
-        this.userNickname = userNickname;
-        this.userAdmin = userAdmin;
+    public User(String userName, String userStatus, String userNickname, String userAvatar) {
+        this(userName, userStatus, userNickname);
         this.userAvatar = userAvatar;
-    }
-
-    public User(int id, String userName, String userPass, String userNickname, boolean userAdmin, String userAvatar) {
-        this.id = id;
-        this.userName = userName;
-        this.userPass = userPass;
-        this.userNickname = userNickname;
-        this.userAdmin = userAdmin;
-        this.userAvatar = userAvatar;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getUserName() {
@@ -64,14 +47,6 @@ public class User {
         this.userNickname = userNickname;
     }
 
-    public boolean isUserAdmin() {
-        return userAdmin;
-    }
-
-    public void setUserAdmin(boolean userAdmin) {
-        this.userAdmin = userAdmin;
-    }
-
     public String getUserAvatar() {
         return userAvatar;
     }
@@ -80,11 +55,11 @@ public class User {
         this.userAvatar = userAvatar;
     }
 
-    public String getUserPass() {
-        return userPass;
+    public String getUserStatus() {
+        return userStatus;
     }
 
-    public void setUserPass(String userPass) {
-        this.userPass = userPass;
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
     }
 }

@@ -52,6 +52,18 @@
     -fx-text-fill: white;
 }
 
+.btn--circle {
+    -fx-background-radius: 50%;
+}
+
+.btn--transparent {
+    -fx-background-color: transparent;
+}
+
+/*.btn--transparent:hover {*/
+/*    -fx-background-color: derive(#ffffff, -20%);*/
+/*}*/
+
 .border--outside {
     -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
     -fx-border-width: 2;
@@ -113,7 +125,7 @@
 }
 
 #lv_UserList {
-    -fx-border-width: 0 2 0 0;
+    -fx-border-width: 0 2 2 0;
     -fx-border-color: linear-gradient(to bottom right, #FC5C7D, #6A82FB);
 }
 

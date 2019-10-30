@@ -2,18 +2,14 @@ package app.views;
 
 import app.models.Message;
 import app.models.User;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
-import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -55,7 +51,7 @@ public class MessageContainer extends HBox {
         // Sender's Message Info
         HBox detailBox_InfoBox = new HBox();
         detailBox_InfoBox.setAlignment(Pos.CENTER_LEFT);
-        Label lbl_userFromName = new Label(message.getUserFrom().getUserNickname());
+        Label lbl_userFromName = new Label(message.getUserFrom().getUserName());
         lbl_userFromName.getStyleClass().add("detail-box__senderName");
         Pane betweenPane = new Pane();
         HBox.setHgrow(betweenPane, Priority.ALWAYS);

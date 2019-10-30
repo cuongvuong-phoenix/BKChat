@@ -1,17 +1,18 @@
 package app.socket;
 
-import java.io.*;
-import java.net.Socket;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import app.controllers.DBController;
 import app.controllers.UserController;
 import app.models.User;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.jws.soap.SOAPBinding;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private Socket client;
@@ -44,29 +45,29 @@ public class ClientHandler implements Runnable {
                 tokens = StringUtils.split(line, ',');
                 if (tokens != null && tokens.length > 0) {
                     String cmd = tokens[0];
-                    switch (cmd){
+                    switch (cmd) {
                         case "login":
-                            handleLogin(os,tokens);
+                            handleLogin(os, tokens);
                             break;
                         case "signup":
-                            handleSignup(os,tokens);
+                            handleSignup(os, tokens);
                             break;
                         case "list":
                             handleShowList(os);
                             break;
                         case "connect":
-                            handleConnect(os,tokens);
+                            handleConnect(os, tokens);
                             break;
                         case "agree":
-                            handleAgree(os,tokens);
+                            handleAgree(os, tokens);
                             break;
                         case "logout":
-                            handleLogout(os,tokens);
+                            handleLogout(os, tokens);
                             break;
                         case "friend":
-                            handleAddFriend(tokens);
+                            handleAddFriend(os, tokens);
                         default:
-                            System.out.println("Unknown "+ cmd);
+                            System.out.println("Unknown " + cmd);
                     }
                 }
                 os.flush();
@@ -78,10 +79,6 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
 
         }
-    }
-
-    private void handleAddFriend(String[] tokens) {
-
     }
 
     private void handleAgree(DataOutputStream writer, String[] tokens) throws IOException {
@@ -99,11 +96,11 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleLogin(DataOutputStream writer, String[] tokens) throws SQLException, IOException {
+
         if (tokens.length == 3) {
             String username = tokens[1];
             String password = tokens[2];
             User user = UserController.getInstance().getUser(username);
-
             String signinQuery = "SELECT * FROM tbl_user WHERE userName = ? AND userPassword = ?";
             ResultSet resultSet = DBController.getInstance().ExecQuery(signinQuery, username, password);
             Boolean isLogged = false;
@@ -116,14 +113,17 @@ public class ClientHandler implements Runnable {
                     break;
                 }
             }
+            System.out.println();
             if (resultSet.next() && (isLogged.equals(false))) {
                 this.user = user;
                 this.isLoggedIn = true;
-                String msg = "Login,Success," + user.getUserName() + "," + user.getUserNickname();
+                String msg = "Login,Success," + user.getUserName();
                 writer.writeUTF(msg);
                 server.addUser(this);
-                handleShowList(writer);
-            }else {
+                for (ClientHandler client : clientList) {
+                    client.handleShowList(client.getOs());
+                }
+            } else {
                 String msg = "Login,Failed";
                 writer.writeUTF(msg);
             }
@@ -150,24 +150,67 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleShowList(DataOutputStream writer) throws IOException {
+    private void handleAddFriend(DataOutputStream writer, String[] tokens) throws IOException, SQLException {
+        if (tokens.length == 3) {
+            String user1 = tokens[1];
+            String user2 = tokens[2];
+
+            String addFriendQuery = "CALL BKChat.USP_AddFriend(?, ?)";
+            int resultUpdate = DBController.getInstance().ExecUpdate(addFriendQuery, user1, user2);
+
+            if (resultUpdate > 0) {
+                String msg = "Friend,Success";
+                writer.writeUTF(msg);
+
+                List<ClientHandler> clientList = server.getClientList();
+                for (ClientHandler client : clientList) {
+                    client.handleShowList(client.getOs());
+                }
+            } else {
+                String msg = "Friend,Failed";
+                writer.writeUTF(msg);
+            }
+        }
+    }
+
+    public void handleShowList(DataOutputStream writer) throws IOException, SQLException {
+        List<String> friendList = new ArrayList<>();
+        if (user != null) {
+            String queryFriendList = "SELECT * FROM BKChat.tbl_userFriend WHERE user1 = ?";
+            ResultSet resultSet = DBController.getInstance().ExecQuery(queryFriendList, user.getUserName());
+            while (resultSet.next()) {
+                String friend = resultSet.getString(2);
+                friendList.add(friend);
+            }
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("UserList");
         List<ClientHandler> clientList = server.getClientList();
         for (ClientHandler client : clientList) {
-            stringBuilder.append(",");
-            stringBuilder.append(client.getUser().getUserName());
+            if (friendList.indexOf(client.getUser().getUserName()) != -1) {
+                stringBuilder.append(",");
+                stringBuilder.append(client.getUser().getUserName());
+                friendList.remove(client.getUser().getUserName());
+            }
         }
-        System.out.println(clientList.size());
-        for (ClientHandler client : clientList) {
-            client.send(stringBuilder.toString());
+        for (String offlineFriend : friendList) {
+            stringBuilder.append(",$");
+            stringBuilder.append(offlineFriend);
         }
+//        System.out.println(stringBuilder.toString());
+        this.send(stringBuilder.toString());
     }
 
-    private void handleLogout(DataOutputStream writer, String[] tokens) throws IOException {
+    private void handleLogout(DataOutputStream writer, String[] tokens) throws IOException, SQLException {
         this.user = null;
         this.isLoggedIn = false;
         server.removeUser(this);
+
+        List<ClientHandler> clientList = server.getClientList();
+        for (ClientHandler client : clientList) {
+            client.handleShowList(client.getOs());
+        }
     }
 
     private void handleConnect(DataOutputStream writer, String[] tokens) throws IOException {
@@ -201,4 +244,9 @@ public class ClientHandler implements Runnable {
         System.out.println(req);
         os.writeUTF(req);
     }
+
+    public DataOutputStream getOs() {
+        return os;
+    }
+
 }

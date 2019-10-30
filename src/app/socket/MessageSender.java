@@ -1,14 +1,12 @@
 package app.socket;
 
 import app.models.Message;
-import javafx.collections.ObservableList;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.DataOutputStream;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
 
 public class MessageSender implements Runnable {
 
@@ -46,10 +44,10 @@ public class MessageSender implements Runnable {
                         } else {
 
                         }
-
                     }
                 }
             }
+            System.out.println("snder off");
         } catch (Exception e) {
             e.printStackTrace();
         }

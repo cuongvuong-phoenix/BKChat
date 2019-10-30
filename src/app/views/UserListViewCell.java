@@ -5,13 +5,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.io.File;
 import java.io.IOException;
 
 public class UserListViewCell extends ListCell<User> {
@@ -29,6 +27,9 @@ public class UserListViewCell extends ListCell<User> {
     private Label lbl_UserName;
 
     @FXML
+    private Circle circle_UserStatus;
+
+    @FXML
     private Label lbl_UserStatus;
 
     private FXMLLoader fxmlLoader;
@@ -42,7 +43,7 @@ public class UserListViewCell extends ListCell<User> {
             setGraphic(null);
         } else {
             if (fxmlLoader == null) {
-                fxmlLoader = new FXMLLoader(getClass().getResource("../views/UserListViewCell.fxml"));
+                fxmlLoader = new FXMLLoader(getClass().getResource("/app/views/UserListViewCell.fxml"));
                 fxmlLoader.setController(this);
 
                 try {
@@ -62,7 +63,22 @@ public class UserListViewCell extends ListCell<User> {
             circle_UserAvatar.getStyleClass().add("avatar--default");
 
             lbl_UserName.setText(user.getUserName());
-            lbl_UserStatus.setText("Online");
+
+            switch (user.getUserStatus()) {
+                case "Online": {
+                    circle_UserStatus.setFill(Color.valueOf("#42b72a"));
+                    break;
+                }
+                case "Offline": {
+                    circle_UserStatus.setFill(Color.valueOf("#ffffff"));
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+
+            lbl_UserStatus.setText(user.getUserStatus());
 
             setText(null);
             setGraphic(hb_UserContainer);

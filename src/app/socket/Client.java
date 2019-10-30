@@ -3,27 +3,26 @@ package app.socket;
 import app.controllers.ChatRoomController;
 import app.controllers.SigninController;
 import app.controllers.SignupController;
-import app.controllers.UserController;
 import app.models.Message;
 import app.models.User;
-import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
     private final String serverHost;
@@ -48,6 +47,8 @@ public class Client {
     private ChatRoomController chatRoomController = new ChatRoomController(this);
     // result message
     private String resultMessage;
+    private AtomicInteger atomicIntegerResult = new AtomicInteger();
+    private StringProperty addFriendResult = new SimpleStringProperty();
     private User loggedUser;
     private List<User> userList = new ArrayList<>();
     private ObservableList<User> userObservableList = FXCollections.observableArrayList();
@@ -94,16 +95,6 @@ public class Client {
         primaryStage.setScene(new Scene(root));
     }
 
-//    public static void main(String[] args) {
-//        Client client = new Client("localhost", 9998);
-//        if (!client.connect()) {
-//            System.err.println("Connection failed");
-//        } else {
-//            System.out.println("Connection succeed");
-//            client.start();
-//        }
-//    }
-
     public void addPeer(PeerHandler peer) {
         peerList.add(peer);
     }
@@ -129,17 +120,21 @@ public class Client {
     }
 
     public void logout() throws IOException {
+        System.out.println("BUg");
+        System.out.println("bug"+peerList.size());
         for (PeerHandler peerHandler : peerList) {
+            System.out.println("BUG!!");
             peerHandler.sendMessage("Disconnect");
             peerHandler.getPeer().close();
         }
+        System.out.println("BUG!!");
         requestSender.send("logout");
         loggedUser = null;
-        peerList = null;
+        peerList = FXCollections.observableArrayList();
     }
 
-    public void addFriend(User friend) {
-        requestSender.send("friend," + loggedUser.getUserName() + "," + friend.getUserName());
+    public void addFriend(String friend) {
+        requestSender.send("friend," + loggedUser.getUserName() + "," + friend);
     }
 
     public boolean connect() {
@@ -319,5 +314,25 @@ public class Client {
         synchronized (this) {
             this.threadUserObservableList = threadUserObservableList;
         }
+    }
+
+    public AtomicInteger getAtomicIntegerResult() {
+        return atomicIntegerResult;
+    }
+
+    public void setAtomicIntegerResult(AtomicInteger atomicIntegerResult) {
+        this.atomicIntegerResult = atomicIntegerResult;
+    }
+
+    public String getAddFriendResult() {
+        return addFriendResult.get();
+    }
+
+    public StringProperty addFriendResultProperty() {
+        return addFriendResult;
+    }
+
+    public void setAddFriendResult(String addFriendResult) {
+        this.addFriendResult.set(addFriendResult);
     }
 }

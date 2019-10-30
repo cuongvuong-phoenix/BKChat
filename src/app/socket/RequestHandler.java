@@ -1,31 +1,26 @@
 package app.socket;
 
-import java.io.BufferedReader;
+import app.controllers.UserController;
+import app.models.User;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Stack;
-
-import app.controllers.ChatRoomController;
-import app.controllers.UserController;
-import app.models.User;
-import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RequestHandler implements Runnable {
 
     private DataInputStream is;
     private Client client;
     private ObservableList<User> userObservableList = FXCollections.observableArrayList();
+    private AtomicInteger atomicIntegerResult = new AtomicInteger();
 
     public RequestHandler(Client client, DataInputStream is) {
         this.is = is;
@@ -48,9 +43,8 @@ public class RequestHandler implements Runnable {
                     } else if (cmd.equals("Login")) {
                         String[] finalTokens = tokens;
                         client.setResultMessage(finalTokens[1]);
-
                         if (finalTokens[1].equals("Success")) {
-                            client.setLoggedUser(new User(finalTokens[2], finalTokens[3]));
+                            client.setLoggedUser(new User(finalTokens[2]));
                         } else {
                             client.setLoggedUser(null);
                         }
@@ -63,13 +57,15 @@ public class RequestHandler implements Runnable {
                         String[] usernameList = ArrayUtils.remove(tokens, 0);
                         for (String username : usernameList) {
                             if (!client.getLoggedUser().getUserName().equals(username)) {
-                                User user = new User(username);
+                                User user;
+                                if (!username.contains("$")) {
+                                    user = new User(username, "Online");
+                                } else {
+                                    user = new User(username.substring(1), "Offline");
+                                }
                                 userList.add(user);
                             }
                         }
-//                        client.setUserList(userList);
-                        // Task<Void> updateUserList = new UpdateUserListWorker(client,userObservableList);
-                        // ((UpdateUserListWorker) updateUserList).call();//client.setThreadUserObservableList(userObservableList);
                         Platform.runLater(() -> {
                             userObservableList.setAll(userList);
                             client.setUserObservableList(userObservableList);
@@ -78,6 +74,12 @@ public class RequestHandler implements Runnable {
                         handleConnect(client, tokens);
                     } else if ("Listen".equalsIgnoreCase(cmd)) {
                         handleListen(client, tokens);
+                    } else if ("Friend".equalsIgnoreCase(cmd)) {
+                        final String resultString = new String(tokens[1]);
+                        final int count = atomicIntegerResult.getAndIncrement();
+                        Platform.runLater(() -> {
+                            client.setAddFriendResult(resultString + "," + count);
+                        });
                     } else {
                         String msg = "unknown " + cmd;
                         System.out.println(msg);

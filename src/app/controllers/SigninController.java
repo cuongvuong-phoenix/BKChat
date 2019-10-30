@@ -1,24 +1,18 @@
 package app.controllers;
 
-import app.models.User;
 import app.socket.Client;
 import app.ultilies.BypassMessage;
-import app.ultilies.ScenesUltilies;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,7 +83,7 @@ public class SigninController implements Initializable {
             bypassMessage.setBypassMessage(bypassSuccess, true);
             client.loadChatroomFXML();
         } else if (resultMessage.equals("Failed")) {
-            String bypassFailed = "Sai tên tài khoản hoặc mật khẩu!";
+            String bypassFailed = "Lỗi! Sai tên tài khoản, mật khẩu hoặc do đang có người dùng tài khoản của bạn!";
             bypassMessage.setBypassMessage(bypassFailed, false);
         }
         client.setResultMessage(null);

@@ -1,11 +1,6 @@
 package app.models;
 
-import com.sun.org.glassfish.external.statistics.TimeStatistic;
-import org.mariadb.jdbc.internal.com.send.parameters.TimestampParameter;
-
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Date;
 
 public class Message {
     private int id;
@@ -16,21 +11,21 @@ public class Message {
 
     private String content;
 
-    private int userFromId;
+    private String userFrom_name;
 
-    private int userToId;
+    private String userTo_name;
 
     private User userFrom;
 
     private User userTo;
 
-    public Message(int id, Timestamp timeSent, Timestamp timeRecv, String content, int userFromId, int userToId) {
+    public Message(int id, Timestamp timeSent, Timestamp timeRecv, String content, String userFrom_name, String userTo_name) {
         this.id = id;
         this.timeSent = timeSent;
         this.timeRecv = timeRecv;
         this.content = content;
-        this.userFromId = userFromId;
-        this.userToId = userToId;
+        this.userFrom_name = userFrom_name;
+        this.userTo_name = userTo_name;
     }
 
     public Message(int id, Timestamp timeSent, Timestamp timeRecv, String content, User userFrom, User userTo) {
@@ -81,20 +76,20 @@ public class Message {
         this.content = content;
     }
 
-    public int getuserFromId() {
-        return userFromId;
+    public String getUserFrom_name() {
+        return userFrom_name;
     }
 
-    public void setuserFromId(int userFromId) {
-        this.userFromId = userFromId;
+    public void setUserFrom_name(String userFrom_name) {
+        this.userFrom_name = userFrom_name;
     }
 
-    public int getuserToId() {
-        return userToId;
+    public String getUserTo_name() {
+        return userTo_name;
     }
 
-    public void setuserToId(int userToId) {
-        this.userToId = userToId;
+    public void setUserTo_name(String userTo_name) {
+        this.userTo_name = userTo_name;
     }
 
     public User getUserFrom() {
