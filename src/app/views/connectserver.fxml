@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="850.0" prefWidth="1121.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="bg-gradient--Sublime-light" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="461.0" prefWidth="650.0" styleClass="account__main">
+                    <padding>
+                        <Insets bottom="32.0" left="48.0" right="48.0" top="64.0" />
+                    </padding>
+                    <effect>
+                        <DropShadow />
+                    </effect>
+                    <children>
+                        <Label text="Kết nối với máy chủ">
+                            <font>
+                                <Font name="Open Sans Bold" size="48.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets bottom="64.0" />
+                            </VBox.margin>
+                        </Label>
+                        <HBox alignment="CENTER_LEFT" prefHeight="58.0" prefWidth="657.0" styleClass="textbox">
+                            <children>
+                                <Label prefHeight="32.0" prefWidth="103.0" text="Địa chỉ IP">
+                                    <HBox.margin>
+                                        <Insets />
+                                    </HBox.margin>
+                                    <font>
+                                        <Font name="Open Sans Bold" size="22.0" />
+                                    </font>
+                                </Label>
+                                <TextField fx:id="tf_HostAddress" alignment="CENTER" onAction="#signin" prefHeight="48.0" prefWidth="345.0" style="-fx-background-color: transparent;" styleClass="text-field" HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font name="Open Sans Regular" size="22.0" />
+                                    </font>
+                                    <HBox.margin>
+                                        <Insets />
+                                    </HBox.margin>
+                                </TextField>
+                                <FontAwesomeIconView glyphName="HOME" size="28">
+                                    <HBox.margin>
+                                        <Insets left="8.0" />
+                                    </HBox.margin>
+                                </FontAwesomeIconView>
+                            </children>
+                            <padding>
+                                <Insets left="16.0" right="16.0" />
+                            </padding>
+                            <VBox.margin>
+                                <Insets bottom="36.0" />
+                            </VBox.margin>
+                        </HBox>
+                        <Label fx:id="lbl_bypassMessage" text="Bypass Message">
+                            <font>
+                                <Font name="Open Sans Regular" size="18.0" />
+                            </font>
+                        </Label>
+                        <Button fx:id="btn_ConnectServer" mnemonicParsing="false" prefHeight="58.0" prefWidth="397.0" styleClass="btn-gradient" text="Kết nối">
+                            <VBox.margin>
+                                <Insets bottom="48.0" top="16.0" />
+                            </VBox.margin>
+                            <font>
+                                <Font name="Open Sans Regular" size="26.0" />
+                            </font>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
