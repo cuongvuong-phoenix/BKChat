@@ -2,8 +2,8 @@
 
 A Peer-to-peer chat application designed and developed by group **C&Q** from _HCMUT (Ho Chi Minh city University of Technology)_
 
-![Demo-intro](https://github.com/vuong-cuong-phoenix/BKChat/tree/master/images/Demo-intro.png)
-![Demo-main](https://github.com/vuong-cuong-phoenix/BKChat/tree/master/images/Demo-main.png)
+![Demo-intro](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/images/Demo-intro.png)
+![Demo-main](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/images/Demo-main.png)
 
 This is a product for _Assignment 1 (2019-2020)_ of _Computer Network (CO3003)_
 
@@ -25,21 +25,21 @@ Follow these steps to compile and run the application correctly:
 
 1. Initialize Database:
 
-    Run all MariaDB's queries in file [./src/BKChat.sql](https://github.com/vuong-cuong-phoenix/BKChat/tree/master/src/BKChat.sql)
+    Run all MariaDB's queries in file [./src/BKChat.sql](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/BKChat.sql)
     
 2. Edit Connector:
 
-    Edit file [./src/controllers/DBController.java](https://github.com/vuong-cuong-phoenix/BKChat/tree/master/src/controllers/DBController.java):
+    Edit file [./src/controllers/DBController.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/controllers/DBController.java):
     
     Change `db_username` and `db_password` as the user's name and password of MariaDB that you was using to run all queries above.
     
 3. Run Server:
     
-    Compile and run file [./src/socket/ServerMaster.java](https://github.com/vuong-cuong-phoenix/BKChat/tree/master/src/socket/ServerMaster.java) first.
+    Compile and run file [./src/socket/ServerMaster.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/socket/ServerMaster.java) first.
     
 4. Run Application:
     
-    Compile and run file [./src/socket/Main.java](https://github.com/vuong-cuong-phoenix/BKChat/tree/master/src/Main.java) and enjoy!
+    Compile and run file [./src/socket/Main.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/Main.java) and enjoy!
     
 ## Known issues
 
