@@ -1,25 +1,16 @@
 package app.socket;
 
-import java.io.*;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-
 import app.models.Message;
-import app.models.User;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.DataInputStream;
+import java.sql.Timestamp;
+import java.util.Base64;
 
 public class MessageReciever implements Runnable {
 
+    public boolean isDisconnect = false;
     private DataInputStream is;
     private PeerHandler peerHandler;
     private StringBuilder fileStringBuilder = new StringBuilder();
@@ -35,12 +26,10 @@ public class MessageReciever implements Runnable {
         try {
             String line = null;
             String[] tokens = null;
-            Boolean isDisconnect = false;
             while (!isDisconnect) {
                 line = is.readUTF();
                 System.out.println(line);
                 tokens = StringUtils.split(line, ',');
-                System.out.println(tokens[0]);
                 if (tokens != null && tokens.length > 0) {
                     switch (tokens[0]) {
                         case "Message": {
@@ -56,7 +45,9 @@ public class MessageReciever implements Runnable {
                         }
                         case "Endfile": {
                             String content = line.substring(line.indexOf(",") + 1);
+                            System.out.println(content);
                             String finalcontent = content.substring(content.indexOf(",") + 1);
+                            System.out.println(finalcontent);
                             fileStringBuilder.append(finalcontent);
                             fileName = tokens[1];
                             Message messageObject = new Message(new Timestamp(System.currentTimeMillis()), "File :" + System.getProperty("user.dir") + "/" + fileName, peerHandler.getPeerUser(), peerHandler.getClient().getLoggedUser());
@@ -69,19 +60,21 @@ public class MessageReciever implements Runnable {
                             break;
                         }
                         case "Disconnect": {
-                            isDisconnect = true;
+                            peerHandler.getClient().peerList.remove(peerHandler);
+                            peerHandler.getClient().mapPeerMessageList.remove(peerHandler);
+                            //peerHandler.disconnectMessage();
+                            peerHandler.closeMessage();
+                            peerHandler.getPeer().close();
                             break;
                         }
                     }
                 }
                 System.out.println("Recv : " + line);
             }
+            System.out.println("End");
         } catch (Exception e) {
-            try {
-                peerHandler.getPeer().close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            e.printStackTrace();
+
         }
 
     }

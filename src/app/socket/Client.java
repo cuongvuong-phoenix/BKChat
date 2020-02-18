@@ -23,7 +23,6 @@ import java.net.SocketException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
     private final String serverHost;
@@ -48,8 +47,9 @@ public class Client {
     private ChatRoomController chatRoomController = new ChatRoomController(this);
     // result message
     private String resultMessage;
-    private AtomicInteger atomicIntegerResult = new AtomicInteger();
     private StringProperty addFriendResult = new SimpleStringProperty();
+    private StringProperty acceptFriend = new SimpleStringProperty();
+
     private User loggedUser;
     private List<User> userList = new ArrayList<>();
     private ObservableList<User> userObservableList = FXCollections.observableArrayList();
@@ -120,18 +120,25 @@ public class Client {
         requestSender.send(message);
     }
 
-    public void logout() throws IOException {
-        System.out.println("BUg");
-        System.out.println("bug" + peerList.size());
-        for (PeerHandler peerHandler : peerList) {
-            System.out.println("BUG!!");
-            peerHandler.sendMessage("Disconnect");
-            peerHandler.getPeer().close();
+    public void friendResponse(Boolean res, String fromUser, String toUser) {
+        if (res) {
+            String message = "friendAccept," + "agree," + fromUser + "," + toUser;
+            requestSender.send(message);
+        } else {
+            String message = "friendAccept," + "disagree," + fromUser + "," + toUser;
+            requestSender.send(message);
         }
-        System.out.println("BUG!!");
+    }
+
+    public void logout() throws IOException {
+        for (PeerHandler peerHandler : peerList) {
+            peerHandler.disconnectMessage();
+            //peerHandler.getPeer().close();
+        }
         requestSender.send("logout");
         loggedUser = null;
         peerList = FXCollections.observableArrayList();
+        mapPeerMessageList = FXCollections.observableHashMap();
     }
 
     public void addFriend(String friend) {
@@ -154,6 +161,10 @@ public class Client {
 
     public void updateMessageList(PeerHandler peerHandler, ObservableList<Message> messageObservableList) {
 
+    }
+
+    public void resetChatPane() {
+        chatRoomController.resetChatPane();
     }
 
     /*public void peer(int port, String cmd) {
@@ -182,7 +193,6 @@ public class Client {
                     break;
                 }
             }
-
             if (isPeerExists) {
                 return;
             }
@@ -319,14 +329,6 @@ public class Client {
         }
     }
 
-    public AtomicInteger getAtomicIntegerResult() {
-        return atomicIntegerResult;
-    }
-
-    public void setAtomicIntegerResult(AtomicInteger atomicIntegerResult) {
-        this.atomicIntegerResult = atomicIntegerResult;
-    }
-
     public String getAddFriendResult() {
         return addFriendResult.get();
     }
@@ -337,5 +339,17 @@ public class Client {
 
     public void setAddFriendResult(String addFriendResult) {
         this.addFriendResult.set(addFriendResult);
+    }
+
+    public String getAcceptFriend() {
+        return acceptFriend.get();
+    }
+
+    public StringProperty acceptFriendProperty() {
+        return acceptFriend;
+    }
+
+    public void setAcceptFriend(String acceptFriend) {
+        this.acceptFriend.set(acceptFriend);
     }
 }

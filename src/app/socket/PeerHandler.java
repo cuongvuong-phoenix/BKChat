@@ -2,18 +2,13 @@ package app.socket;
 
 import app.models.Message;
 import app.models.User;
-import app.socket.MessageReciever;
-import app.socket.MessageSender;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import sun.security.util.DerOutputStream;
 
 import java.io.*;
 import java.net.Socket;
-import java.sql.Timestamp;
 import java.util.*;
 
 public class PeerHandler implements Runnable {
@@ -58,9 +53,18 @@ public class PeerHandler implements Runnable {
             Thread peerWriterThread = new Thread(messageSender);
             peerReaderThread.start();
             peerWriterThread.start();
+
         } catch (Exception e) {
 
         }
+    }
+
+    public void closeMessage() {
+        messageSender.isDisconnect = true;
+        messageReciever.isDisconnect =true;
+        Platform.runLater(() -> {
+            client.resetChatPane();
+        });
     }
 
     public void sendMessage(String content) {
@@ -69,17 +73,18 @@ public class PeerHandler implements Runnable {
 //            messageObservableList.add(message);
 
     }
-
+    public void disconnectMessage(){
+        messageSender.send("Disconnect,"+ this.client.getLoggedUser().getUserName());
+    }
     public void sendFile(String path, String fileName) {
-        Task<Void> sendFile = new Task<Void>() {
+        Task<Void> sendfile = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 try (InputStream in = new BufferedInputStream(new FileInputStream(path))) {
                     int len;
-                    byte[] temp = new byte[1023];
+                    byte[] temp = new byte[12345];
                     while (((len = in.read(temp)) > 0)) {
-                        System.out.println(len);
-                        if (len < 1023) {
+                        if (len < 12345) {
                             byte[] extra;
                             extra = Arrays.copyOf(temp, len);
                             messageSender.send("Endfile," + fileName + "," + Base64.getEncoder().encodeToString(extra));
@@ -95,7 +100,7 @@ public class PeerHandler implements Runnable {
                 return null;
             }
         };
-        Thread th = new Thread(sendFile);
+        Thread th = new Thread(sendfile);
         th.setDaemon(true);
         th.start();
 

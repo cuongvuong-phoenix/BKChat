@@ -66,6 +66,10 @@ public class ClientHandler implements Runnable {
                             break;
                         case "friend":
                             handleAddFriend(os, tokens);
+                            break;
+                        case "friendAccept":
+                            handleAcceptFriend(os, tokens);
+                            break;
                         default:
                             System.out.println("Unknown " + cmd);
                     }
@@ -78,6 +82,46 @@ public class ClientHandler implements Runnable {
 		client.close();*/
         } catch (Exception e) {
 
+        }
+    }
+
+    private void handleAcceptFriend(DataOutputStream writer, String[] tokens) throws IOException, SQLException {
+        if (tokens.length == 4) {
+            String status = tokens[1];
+            String user1 = tokens[2];
+            String user2 = tokens[3];
+
+            ClientHandler client1 = null;
+            List<ClientHandler> clientList = server.getClientList();
+            for (ClientHandler client : clientList) {
+                if (client.getUser().getUserName().equals(user1)) {
+                    client1 = client;
+                }
+            }
+
+            if (client1 != null && status.equals("disagree")) {
+                String msg = "Friend,Failed";
+                client1.send(msg);
+
+                return;
+            }
+
+            String addFriendQuery = "CALL BKChat.USP_AddFriend(?, ?)";
+            int resultUpdate = DBController.getInstance().ExecUpdate(addFriendQuery, user1, user2);
+
+            if (client1 != null) {
+                if (resultUpdate > 0) {
+                    String msg = "Friend,Success";
+                    this.send(msg);
+                    this.handleShowList(this.getOs());
+                    client1.send(msg);
+                    client1.handleShowList(client1.getOs());
+                } else {
+                    String msg = "Friend,Failed";
+                    os.writeUTF(msg);
+                    client1.send(msg);
+                }
+            }
         }
     }
 
@@ -113,16 +157,13 @@ public class ClientHandler implements Runnable {
                     break;
                 }
             }
-            System.out.println();
             if (resultSet.next() && (isLogged.equals(false))) {
                 this.user = user;
-                System.out.println(user.getUserName());
                 this.isLoggedIn = true;
                 String msg = "Login,Success," + user.getUserName();
                 writer.writeUTF(msg);
                 server.addUser(this);
                 for (ClientHandler client : clientList) {
-                    System.out.println(client.getUser().getUserName());
                     client.handleShowList(client.getOs());
                 }
             } else {
@@ -157,21 +198,47 @@ public class ClientHandler implements Runnable {
             String user1 = tokens[1];
             String user2 = tokens[2];
 
-            String addFriendQuery = "CALL BKChat.USP_AddFriend(?, ?)";
-            int resultUpdate = DBController.getInstance().ExecUpdate(addFriendQuery, user1, user2);
-
-            if (resultUpdate > 0) {
-                String msg = "Friend,Success";
-                writer.writeUTF(msg);
-
-                List<ClientHandler> clientList = server.getClientList();
-                for (ClientHandler client : clientList) {
-                    client.handleShowList(client.getOs());
+            String checkExistsQuery = "SELECT COUNT(*) FROM BKChat.tbl_userFriend WHERE ((user1 = ? AND user2 = ?) OR (user1 = ? AND user2 = ?))";
+            ResultSet resultSet = DBController.getInstance().ExecQuery(checkExistsQuery, user1, user2, user2, user1);
+            if (resultSet.next()) {
+                if (resultSet.getInt(1) == 2) {
+                    String msg = "Friend,Failed";
+                    writer.writeUTF(msg);
+                    return;
                 }
-            } else {
+            }
+
+            ClientHandler clientOnline = null;
+            List<ClientHandler> clientList = server.getClientList();
+            for (ClientHandler client : clientList) {
+                if (client.getUser().getUserName().equals(user2)) {
+                    clientOnline = client;
+                    break;
+                }
+            }
+
+            if (clientOnline == null) {
                 String msg = "Friend,Failed";
                 writer.writeUTF(msg);
+                return;
+            } else {
+                String msg = "FriendAccept," + user1;
+                clientOnline.send(msg);
             }
+
+//            String addFriendQuery = "CALL BKChat.USP_AddFriend(?, ?)";
+//            int resultUpdate = DBController.getInstance().ExecUpdate(addFriendQuery, user1, user2);
+//
+//            if (resultUpdate > 0) {
+//                String msg = "FriendAccept," + user1 + "," + user2;
+//                //writer.writeUTF(msg);
+//                for (ClientHandler client : clientList) {
+//                    client.handleShowList(client.getOs());
+//                }
+//            } else {
+//                String msg = "Friend,Failed";
+//                writer.writeUTF(msg);
+//            }
         }
     }
 
@@ -200,7 +267,6 @@ public class ClientHandler implements Runnable {
             stringBuilder.append(",$");
             stringBuilder.append(offlineFriend);
         }
-//        System.out.println(stringBuilder.toString());
         this.send(stringBuilder.toString());
     }
 
@@ -224,7 +290,6 @@ public class ClientHandler implements Runnable {
             for (ClientHandler clientOne : clientList) {
                 if (clientOne.getUser().getUserName().equals(toUser)) {
                     //writer.write("host 9000");
-                    System.out.println(clientOne.getUser().getUserName());
                     clientOne.send("Connect," + fromUser + "," + toUser);
                     res = clientOne;
                 }
@@ -243,7 +308,6 @@ public class ClientHandler implements Runnable {
     }
 
     public void send(String req) throws IOException {
-        System.out.println(req);
         os.writeUTF(req);
     }
 

@@ -16,8 +16,8 @@ public class DBController {
     }
 
     private String db_host = "jdbc:mariadb://localhost:3306/BKChat";
-    private String db_username = "bimbal7";
-    private String db_password = "bimbal7";
+    private String db_username = "root";
+    private String db_password = "root";
 
     public ResultSet ExecQuery(String query, Object... parameteres) {
         ResultSet resultSet = null;

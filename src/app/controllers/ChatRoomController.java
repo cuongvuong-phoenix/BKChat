@@ -14,19 +14,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ChatRoomController implements Initializable {
     @FXML
@@ -61,7 +55,9 @@ public class ChatRoomController implements Initializable {
 
     private List<ChatPane> chatPaneList = new ArrayList<>();
 
-    Alert addFriendAlert = new Alert(Alert.AlertType.INFORMATION);
+    private Alert addFriendAlert = new Alert(Alert.AlertType.INFORMATION);
+
+    private Alert acceptFriendAlert = new Alert(Alert.AlertType.CONFIRMATION);
 
     public ChatRoomController(Client client) {
         this.client = client;
@@ -74,6 +70,18 @@ public class ChatRoomController implements Initializable {
         } else {
             client.addFriend(friend);
         }
+    }
+
+    public void resetChatPane() {
+        lv_UserList.getSelectionModel().clearSelection();
+        //stack_ChatPane.getChildren().clear();
+
+        List<ChatPane> chatPaneList = new ArrayList<>();
+        for (Map.Entry<PeerHandler, ObservableList<Message>> entry : client.mapPeerMessageList.entrySet()) {
+            ChatPane chatPane = new ChatPane(entry.getKey(), entry.getValue());
+            chatPaneList.add(chatPane);
+        }
+        stack_ChatPane.getChildren().setAll(chatPaneList);
     }
 
     @Override
@@ -92,18 +100,38 @@ public class ChatRoomController implements Initializable {
             switch (newValue.substring(0, newValue.indexOf(","))) {
                 case "Success":
                     addFriendAlert.setHeaderText("Chúc mừng, " + tf_AddFriend.getText() + " và bạn đã trở thành bạn bè!");
-                    addFriendAlert.showAndWait();
+                    addFriendAlert.show();
                     break;
                 case "Failed":
                     addFriendAlert.setHeaderText("Có lỗi xảy ra trong quá trình thêm " + tf_AddFriend.getText() + " làm bạn bè!");
-                    addFriendAlert.showAndWait();
+                    addFriendAlert.show();
                     break;
                 case "Already":
                     addFriendAlert.setHeaderText("Bạn và " + tf_AddFriend.getText() + " đã là bạn bè rồi!");
-                    addFriendAlert.showAndWait();
+                    addFriendAlert.show();
                     break;
             }
         });
+
+        client.acceptFriendProperty().addListener((observableValue, oldValue, newValue) -> {
+            String userAddFriend = newValue.substring(0, newValue.indexOf(","));
+            acceptFriendAlert.setHeaderText(userAddFriend + " muốn trở thành bạn bè với bạn. Bạn có đồng ý không?");
+
+            Optional<ButtonType> optional = acceptFriendAlert.showAndWait();
+            if (optional.isPresent() && optional.get() == ButtonType.CANCEL) {
+                client.friendResponse(false, userAddFriend, client.getLoggedUser().getUserName());
+            } else if (optional.isPresent() && optional.get() == ButtonType.OK) {
+                client.friendResponse(true, userAddFriend, client.getLoggedUser().getUserName());
+            }
+        });
+
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        lv_UserList.getItems().clear();
 
         Platform.runLater(() -> {
             lv_UserList.setItems(client.getUserObservableList());
@@ -111,33 +139,38 @@ public class ChatRoomController implements Initializable {
         });
 
         lv_UserList.getSelectionModel().selectedItemProperty().addListener((observableValue, oldUser, newUser) -> {
-            client.connectToPeer(client.getLoggedUser().getUserName(), newUser.getUserName());
+            if (newUser != null) {
+                client.connectToPeer(client.getLoggedUser().getUserName(), newUser.getUserName());
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-            stack_ChatPane.getChildren().clear();
+                //stack_ChatPane.getChildren().clear();
 
-            List<ChatPane> chatPaneList = new ArrayList<>();
-            for (Map.Entry<PeerHandler, ObservableList<Message>> entry : client.mapPeerMessageList.entrySet()) {
-                ChatPane chatPane = new ChatPane(entry.getKey(), entry.getValue());
-                chatPaneList.add(chatPane);
-            }
-            stack_ChatPane.getChildren().setAll(chatPaneList);
+                List<ChatPane> chatPaneList = new ArrayList<>();
+                for (Map.Entry<PeerHandler, ObservableList<Message>> entry : client.mapPeerMessageList.entrySet()) {
+                    ChatPane chatPane = new ChatPane(entry.getKey(), entry.getValue());
+                    chatPaneList.add(chatPane);
+                }
+                if (!chatPaneList.isEmpty()) {
+                    stack_ChatPane.getChildren().setAll(chatPaneList);
 
-            for (Node node : stack_ChatPane.getChildren()) {
-                ChatPane chatPane = (ChatPane) node;
-                if (chatPane.getPeerHandler().getPeerUser().getUserName().equals(newUser.getUserName())) {
-                    chatPane.setVisible(true);
-                } else if (chatPane.getPeerHandler().getPeerUser().getUserName().equals(oldUser.getUserName())) {
-                    chatPane.setVisible(false);
+                    for (Node node : stack_ChatPane.getChildren()) {
+                        ChatPane chatPane = (ChatPane) node;
+                        if (chatPane.getPeerHandler().getPeerUser().getUserName().equals(newUser.getUserName())) {
+                            chatPane.setVisible(true);
+                        } else if (oldUser != null && chatPane.getPeerHandler().getPeerUser().getUserName().equals(oldUser.getUserName())) {
+                            chatPane.setVisible(false);
+                        }
+                    }
                 }
             }
         });
     }
+
 
     public Client getClient() {
         return client;

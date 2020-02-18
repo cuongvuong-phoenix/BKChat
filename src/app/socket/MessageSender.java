@@ -1,15 +1,17 @@
 package app.socket;
 
 import app.models.Message;
+import javafx.collections.ObservableList;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.DataOutputStream;
+import java.io.*;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Scanner;
 
 public class MessageSender implements Runnable {
-
+    public  boolean isDisconnect = false;
     private DataOutputStream os;
     private PeerHandler peerHandler;
     private Queue<String> messageQueue = new LinkedList<>();
@@ -22,7 +24,6 @@ public class MessageSender implements Runnable {
     @Override
     public void run() {
         try {
-            Boolean isDisconnect = false;
             while (!isDisconnect) {
                 synchronized (this) {
                     while (!messageQueue.isEmpty()) {
@@ -32,7 +33,7 @@ public class MessageSender implements Runnable {
                         os.writeUTF(message);
                         os.flush();
                         if (message.equals("Disconnect")) {
-                            isDisconnect = true;
+                            peerHandler.closeMessage();
                             break;
                         }
                         if (tokens[0].equals("Endfile")) {
@@ -44,12 +45,18 @@ public class MessageSender implements Runnable {
                         } else {
 
                         }
+
                     }
                 }
             }
-            System.out.println("snder off");
+            System.out.println("End Chat");
         } catch (Exception e) {
             e.printStackTrace();
+//            try {
+//                peerHandler.getPeer().close();
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
         }
     }
 

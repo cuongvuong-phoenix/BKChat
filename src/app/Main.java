@@ -59,6 +59,7 @@ public class Main extends Application {
         bypassMessage = new BypassMessage(lbl_bypassMessage);
 
         lbl_bypassMessage.setText("");
+        tf_HostAddress.setText("192.168.159.1");
 
         tf_HostAddress.textProperty().addListener((observableValue, oldValue, newValue) -> {
             lbl_bypassMessage.setText("");

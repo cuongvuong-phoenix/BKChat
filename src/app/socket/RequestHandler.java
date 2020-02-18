@@ -1,6 +1,5 @@
 package app.socket;
 
-import app.controllers.UserController;
 import app.models.User;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -39,19 +38,22 @@ public class RequestHandler implements Runnable {
                 if (tokens != null && tokens.length > 0) {
                     String cmd = tokens[0];
                     if ("quit".equalsIgnoreCase(cmd)) {
-                        break;
+
                     } else if (cmd.equals("Login")) {
-                        String[] finalTokens = tokens;
-                        client.setResultMessage(finalTokens[1]);
-                        if (finalTokens[1].equals("Success")) {
-                            client.setLoggedUser(new User(finalTokens[2]));
+                        client.setResultMessage(tokens[1]);
+                        if (tokens[1].equals("Success")) {
+                            client.setLoggedUser(new User(tokens[2]));
                         } else {
                             client.setLoggedUser(null);
                         }
                     } else if (cmd.equals("Signup")) {
                         client.setResultMessage(tokens[1]);
-                    } else if (cmd.equals("Logout")) {
-                        break;
+                    } else if (cmd.equals("FriendAccept")) {
+                        final String user1 = tokens[1];
+                        final int count = atomicIntegerResult.getAndIncrement();
+                        Platform.runLater(() -> {
+                            client.setAcceptFriend(user1 + "," + count);
+                        });
                     } else if (cmd.equals("UserList")) {
                         List<User> userList = new ArrayList<>();
                         String[] usernameList = ArrayUtils.remove(tokens, 0);
@@ -66,6 +68,7 @@ public class RequestHandler implements Runnable {
                                 userList.add(user);
                             }
                         }
+
                         Platform.runLater(() -> {
                             userObservableList.setAll(userList);
                             client.setUserObservableList(userObservableList);
@@ -95,7 +98,7 @@ public class RequestHandler implements Runnable {
 
     private void handleConnect(Client client, String[] tokens) throws SQLException {
         String peer = tokens[1];
-        User peerUser = UserController.getInstance().getUser(peer);
+        User peerUser = new User(peer);
         try {
             client.peerHost(peerUser);
         } catch (IOException e) {
@@ -108,7 +111,7 @@ public class RequestHandler implements Runnable {
         int port = Integer.parseInt(tokens[1]);
         String host = tokens[3];
         String peer = tokens[2];
-        User peerUser = UserController.getInstance().getUser(peer);
+        User peerUser = new User(peer);
         client.peerListen(port, peerUser, host);
     }
 }
