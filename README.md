@@ -11,7 +11,7 @@ This is a product for _Assignment 1 (2019-2020)_ of _Computer Network (CO3003)_
 
 This repo is the source-code, not the complied once, so you need to install some requirements first in order to run correctly.
 
-**Note: You should use IntelliJ IDEA to compile and run this application for the best experiment**.
+_Note: You should use IntelliJ IDEA to compile and run this application for the best experiment._
 
 1. Java Development Kit 8 (include JavaFX 8)
 2. [MariaDB](https://mariadb.org/)
@@ -29,17 +29,17 @@ Follow these steps to compile and run the application correctly:
     
 2. Edit Connector:
 
-    Edit file [./src/controllers/DBController.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/controllers/DBController.java):
+    Edit file [./src/app/controllers/DBController.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/controllers/DBController.java):
     
     Change `db_username` and `db_password` as the user's name and password of MariaDB that you was using to run all queries above.
     
 3. Run Server:
     
-    Compile and run file [./src/socket/ServerMaster.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/socket/ServerMaster.java) first.
+    Compile and run file [./src/app/socket/ServerMaster.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/socket/ServerMaster.java) first.
     
 4. Run Application:
     
-    Compile and run file [./src/socket/Main.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/Main.java) and enjoy!
+    Compile and run file [./src/app/socket/Main.java](https://github.com/vuong-cuong-phoenix/BKChat/blob/master/src/app/Main.java) and enjoy!
     
 ## Known issues
 
